@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"
+    />
+    <title>Gallery Gambling</title>
+    <link rel="stylesheet" href="./assets/style.css" />
+  </head>
+  <body>
+    <div id="loadingScreenDiv" class="loadingDiv">
+      <img
+        src="./assets/img/loading.png"
+        alt="Loading Image"
+        class="loading-img"
+      />
+    </div>
+
+    <div class="leaderboardDiv" id="leaderboardDiv"></div>
+
+    <div class="bankDiv" id="bankDiv"></div>
+
+    <div class="auctionDiv" id="auctionDiv"></div>
+
+    <div class="paintingDiv" id="paintingDiv"></div>
+
+    <div class="mainMenuDiv" id="mainMenuDiv">
+      <div class="mainMenuButtonsAndTitle">
+        <img src="./assets/img/title.png" alt="Title image" />
+        <input
+          maxlength="10"
+          class="nicknameInput"
+          placeholder="Your 'creative' nickname"
+          id="nickNameInput"
+        />
+        <button class="primaryButton" id="startmenuStartButton">
+          Join the game
+        </button>
+      </div>
+      <div class="connectionInfo">
+        <p>Connected to 127.0.0.1</p>
+        <p>Version DEV_1.0.1</p>
+      </div>
+    </div>
+
+    <div class="background-div">
+      <img src="./assets/img/pillar.png" alt="" />
+      <img src="./assets/img/pillar.png" alt="" />
+      <div id="moneyBackground"></div>
+    </div>
+
+    <script src="./assets/script.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script src="./assets/money-background.js"></script>
+  </body>
+</html>

@@ -1,0 +1,184 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+
+body {
+  padding: 0;
+  margin: 0;
+  background: #424242;
+
+  font-family: "Roboto", sans-serif;
+}
+
+/* Money Rain Background */
+
+.background-div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.background-div img {
+  width: auto;
+  height: 100%;
+  object-fit: contain;
+}
+
+.background-div img:nth-of-type(1) {
+  position: absolute;
+  bottom: 0;
+  left: -70px;
+}
+
+.background-div img:nth-of-type(2) {
+  position: absolute;
+  bottom: 0;
+  right: -40px;
+}
+
+#moneyBackground {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.rain {
+  z-index: 100;
+  position: fixed;
+  top: 0;
+  left: 0;
+  opacity: 0.7;
+  z-index: -1;
+}
+
+/* Loading Screen */
+
+.loadingDiv {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: white;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  z-index: 1000;
+  transition: opacity 500ms;
+  opacity: 100%;
+}
+
+.loadingDiv.hidden {
+  opacity: 0%;
+  transition: opacity 500ms;
+}
+
+.loading-img {
+  max-width: 50%;
+  max-height: 50%;
+  aspect-ratio: 5/1;
+
+  animation: loadingSpinner 6s ease-in-out infinite;
+}
+
+@keyframes loadingSpinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(360deg);
+  }
+  50% {
+    transform: rotate(720deg);
+  }
+  100% {
+    transform: rotate(720deg);
+  }
+}
+
+/* Main menu */
+.mainMenuDiv {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  gap: 40px;
+
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.connectionInfo {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.connectionInfo p {
+  padding: 0;
+  margin: 0;
+}
+
+.mainMenuButtonsAndTitle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.mainMenuButtonsAndTitle .nicknameInput {
+  border: 2px solid #000;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 20px;
+}
+
+.mainMenuButtonsAndTitle .primaryButton {
+  border-radius: 12px;
+  border: 5px solid #000;
+  background: rgb(178, 251, 165);
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25);
+  transition: all 100ms;
+
+  color: #000;
+  font-family: Roboto;
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  font-variant: all-small-caps;
+
+  padding: 5px 15px;
+}
+
+.mainMenuButtonsAndTitle .primaryButton:hover {
+  transition: all 100ms;
+  background: rgb(122, 172, 113);
+}
+
+.mainMenuButtonsAndTitle .primaryButton:active {
+  transition: all 10ms;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25),
+    inset 2px 2px 5px rgba(0, 0, 0, 0.25);
+}
+
+.mainMenuButtonsAndTitle img {
+  max-width: 35%;
+  width: auto;
+}
