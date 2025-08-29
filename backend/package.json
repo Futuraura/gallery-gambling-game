@@ -1,0 +1,23 @@
+{
+  "name": "gallery-gambling-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Futuraura/gallery-gambling-game.git"
+  },
+  "author": "Futuraura",
+  "license": "AGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/Futuraura/gallery-gambling-game/issues"
+  },
+  "homepage": "https://github.com/Futuraura/gallery-gambling-game#readme",
+  "dependencies": {
+    "ws": "^8.18.3"
+  }
+}
