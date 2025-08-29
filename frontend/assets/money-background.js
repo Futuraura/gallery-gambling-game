@@ -7,12 +7,14 @@ $(document).ready(function () {
   animationId = null;
 
   // Auto-start animation on page load
+  const moneyBackgroundDiv = document.getElementById("moneyBackground");
+
   width = $(document).width();
   height = $(document).height();
   canvas = $('<canvas class="rain"></canvas>');
   canvas.attr("width", width);
   canvas.attr("height", height);
-  canvas.appendTo("body");
+  canvas.appendTo(moneyBackgroundDiv);
   initAnimation();
 
   // $('body').on('click', '.rain', function() {
