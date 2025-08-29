@@ -1,3 +1,6 @@
+/* TODO: Find the source, cause I ain't to creditless pirate */
+/* Legacy code made by someone on codepen */
+
 $(document).ready(function () {
   width = null;
   height = null;
@@ -6,7 +9,6 @@ $(document).ready(function () {
   canvasContext = null;
   animationId = null;
 
-  // Auto-start animation on page load
   const moneyBackgroundDiv = document.getElementById("moneyBackground");
 
   width = $(document).width();
@@ -16,15 +18,11 @@ $(document).ready(function () {
   canvas.attr("height", height);
   canvas.appendTo(moneyBackgroundDiv);
   initAnimation();
-
-  // $('body').on('click', '.rain', function() {
-  //   endAnimation()
-  // });
 });
 
 function initAnimation() {
   numMoney = 20;
-  speedOffset = 8;
+  speedOffset = 3;
   speedRange = 2;
   numImages = 3;
 
@@ -44,14 +42,14 @@ function initAnimation() {
       speed: speedOffset + _.random(speedRange),
       currentFrame: 0,
       direction: direction,
+      rotationSpeed: 0.01 + Math.random() * 0.03, // random slow rotation speed
+      driftAmplitude: 20 + Math.random() * 30, // smooth horizontal drift
+      driftFrequency: 0.003 + Math.random() * 0.004, // slow, unique frequency
     };
 
     imageIndex = _.random(numImages);
-    // money.image.src = "https://dl.dropboxusercontent.com/u/58679421/make_it_rain_images/money_" +
-    //   imageIndex + ".png"
     money.image.src =
       "https://images.vexels.com/media/users/3/144032/isolated/preview/1f5414b9d04b71a4972208c035a7d278-stroke-dollar-bill-by-vexels.png";
-    // money.image.src = "https://bangbroschat.com/svg/coin.svg"
     fallingMoney.push(money);
   });
 
@@ -70,11 +68,11 @@ function draw() {
 
     money.currentFrame += 1;
     money.y += money.speed;
-    money.angle += money.direction * 0.05;
-    radius = money.direction * (10 + (index % 2));
-    money.x += Math.sin((money.currentFrame + index) / (1 * Math.PI));
+    money.angle += money.direction * money.rotationSpeed;
+    money.x +=
+      Math.sin(money.currentFrame * money.driftFrequency + index) *
+      (money.driftAmplitude / 100);
 
-    // Reset money position when it falls off the screen
     if (money.y > height + imageHeight) {
       money.y = _.random(-height * 0.5, -imageHeight);
       money.x = _.random(width);
