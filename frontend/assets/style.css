@@ -1,5 +1,28 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
 
+:root {
+  --show-background: flex;
+  --show-main-menu: none;
+  --show-painting: none;
+  --show-bank: none;
+  --show-auction: none;
+  --show-end-screen: flex;
+}
+
+* {
+  user-select: none;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+img {
+  object-fit: contain;
+}
+
+input {
+  user-select: text;
+}
+
 body {
   padding: 0;
   margin: 0;
