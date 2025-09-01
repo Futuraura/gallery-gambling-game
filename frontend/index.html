@@ -18,13 +18,163 @@
       />
     </div>
 
-    <div class="leaderboardDiv" id="leaderboardDiv"></div>
+    <div class="endScreen" id="endScreen">
+      <div class="gameoverDialog">
+        <p>Game Over!</p>
+        <div class="leaderboard-container">
+          <div class="leaderboard-title">Leaderboards</div>
+          <div class="leaderboard-list">
+            <div class="leaderboard-item">
+              <div class="leaderboard-rank">
+                <div class="rank-number first">1</div>
+                <p class="player-name">Jestanka1</p>
+              </div>
+              <p class="player-pnl">+3500$</p>
+            </div>
+            <div class="leaderboard-item">
+              <div class="leaderboard-rank">
+                <div class="rank-number second">2</div>
+                <p class="player-name">Jestanka2</p>
+              </div>
+              <p class="player-pnl">+2500$</p>
+            </div>
+            <div class="leaderboard-item">
+              <div class="leaderboard-rank">
+                <div class="rank-number third">3</div>
+                <p class="player-name">Jestanka3</p>
+              </div>
+              <p class="player-pnl">+1500$</p>
+            </div>
+            <div class="leaderboard-item player-row">
+              <!-- If the player is below 3rd place then add this and show his place in the lb -->
+              <div class="leaderboard-rank">
+                <div class="rank-number">4</div>
+                <p class="player-name">Nickname</p>
+              </div>
+              <p class="player-pnl negative">-5000$</p>
+            </div>
+          </div>
+        </div>
+        <button>Back to Main Menu</button>
+      </div>
+    </div>
 
-    <div class="bankDiv" id="bankDiv"></div>
+    <div class="bankDiv" id="bankDiv">
+      <img
+        src="./assets/img/bank.png"
+        alt="Sketchy bank logo"
+        class="bankLogo"
+      />
+      <button class="loanButton">Take a loan at 50% interest</button>
+    </div>
 
-    <div class="auctionDiv" id="auctionDiv"></div>
+    <div class="auctionDiv" id="auctionDiv">
+      <div>
+        <div class="leftPart">
+          <div class="auctionCanvas">
+            <img id="currentAuctionCanvas" />
+          </div>
+          <div class="bidControlling">
+            <p>Current bid:<br /><span>1500$</span></p>
+            <button class="bidButton">1600$</button>
+            <button class="bidButton">1700$</button>
+            <button class="bidButton">1800$</button>
+          </div>
+        </div>
+        <div class="rightPart">
+          <div class="hintsList">
+            <p class="artHint">A duck is worth 1500$</p>
+            <p class="artHint">Evening is worth 400$</p>
+            <p class="artHint">Overlord is worth 4800$</p>
+          </div>
+          <div class="balanceStatus">
+            <p>
+              Credits left: <span>2500$</span>
+              <br />
+              Current debt: (<span>1</span>/3)
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="playerList">
+        <div class="player">
+          <p class="playerNickname">Jestanka1</p>
+          <img src="./assets/img/player.svg" id="player1" />
+        </div>
+        <div class="player">
+          <p class="playerNickname">Jestanka1</p>
+          <img src="./assets/img/player.svg" />
+        </div>
+        <div class="player">
+          <p class="playerNickname">Jestanka1</p>
+          <img src="./assets/img/player.svg" />
+        </div>
+        <div class="player">
+          <p class="playerNickname">Jestanka1</p>
+          <img src="./assets/img/player.svg" />
+        </div>
+        <div class="player">
+          <p class="playerNickname">Jestanka1</p>
+          <img src="./assets/img/player.svg" />
+        </div>
+        <div class="player">
+          <p class="playerNickname">Jestanka1</p>
+          <img src="./assets/img/player.svg" />
+        </div>
+        <div class="player">
+          <p class="playerNickname">Jestanka1</p>
+          <img src="./assets/img/player.svg" />
+        </div>
+      </div>
+    </div>
 
-    <div class="paintingDiv" id="paintingDiv"></div>
+    <div class="paintingDiv" id="paintingDiv">
+      <div class="mainPaintingScreen">
+        <div class="leftPart">
+          <p class="timer">01:30:55</p>
+          <div class="drawingTheme">
+            <p>(1/2) Draw:</p>
+            <p>A duck</p>
+          </div>
+        </div>
+        <div class="rightPart">
+          <div class="paintingAndToolset">
+            <canvas class="painting"></canvas>
+            <div class="toolSet"></div>
+          </div>
+        </div>
+      </div>
+      <div class="playerList">
+        <div class="player">
+          <p class="playerNickname">Jestanka1</p>
+          <img src="./assets/img/player.svg" />
+        </div>
+        <div class="player">
+          <p class="playerNickname">Jestanka1</p>
+          <img src="./assets/img/player.svg" />
+        </div>
+        <div class="player">
+          <p class="playerNickname">Jestanka1</p>
+          <img src="./assets/img/player.svg" />
+        </div>
+        <div class="player">
+          <p class="playerNickname">Jestanka1</p>
+          <img src="./assets/img/player.svg" />
+        </div>
+        <div class="player">
+          <p class="playerNickname">Jestanka1</p>
+          <img src="./assets/img/player.svg" />
+        </div>
+        <div class="player">
+          <p class="playerNickname">Jestanka1</p>
+          <img src="./assets/img/player.svg" />
+        </div>
+        <div class="player">
+          <p class="playerNickname">Jestanka1</p>
+          <img src="./assets/img/player.svg" />
+        </div>
+      </div>
+    </div>
 
     <div class="mainMenuDiv" id="mainMenuDiv">
       <div class="mainMenuButtonsAndTitle">
