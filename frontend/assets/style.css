@@ -293,3 +293,581 @@ body {
   max-width: 35%;
   width: auto;
 }
+
+/*
+ /$$$$$$$           /$$             /$$     /$$
+| $$__  $$         |__/            | $$    |__/
+| $$  \ $$ /$$$$$$  /$$ /$$$$$$$  /$$$$$$   /$$ /$$$$$$$   /$$$$$$
+| $$$$$$$/|____  $$| $$| $$__  $$|_  $$_/  | $$| $$__  $$ /$$__  $$
+| $$____/  /$$$$$$$| $$| $$  \ $$  | $$    | $$| $$  \ $$| $$  \ $$
+| $$      /$$__  $$| $$| $$  | $$  | $$ /$$| $$| $$  | $$| $$  | $$
+| $$     |  $$$$$$$| $$| $$  | $$  |  $$$$/| $$| $$  | $$|  $$$$$$$
+|__/      \_______/|__/|__/  |__/   \___/  |__/|__/  |__/ \____  $$
+                                                          /$$  \ $$
+                                                         |  $$$$$$/
+                                                          \______/
+*/
+.paintingDiv {
+  display: var(--show-painting);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.mainPaintingScreen {
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  height: 100%;
+  width: 100%;
+}
+
+.leftPart {
+  padding: 20px;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rightPart {
+  width: 50%;
+  height: 100%;
+  padding: 20px;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.paintingAndToolset {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.toolSet {
+  display: flex;
+  width: 185px;
+  height: 100%;
+  padding: 22px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+
+  border-radius: 12px;
+  border: 8px solid #000;
+  background: #fff;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.painting {
+  height: 100%;
+  aspect-ratio: 4 / 5;
+
+  border-radius: 12px;
+  border: 8px solid #000;
+  background: #fff;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.drawingTheme {
+  width: 70%;
+  display: flex;
+  padding: 15px 20px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  border-radius: 12px;
+  border: 8px solid #000;
+  background: #fff;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.drawingTheme p:nth-of-type(1) {
+  color: #000;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.drawingTheme p:nth-of-type(2) {
+  color: #000;
+  text-align: center;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.timer {
+  color: #000;
+  font-size: 72px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+
+  background: rgba(255, 255, 255, 1);
+  border: 8px solid #000;
+  border-radius: 12px;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25);
+
+  padding: 15px 30px;
+}
+
+/*
+  /$$$$$$                        /$$     /$$                    
+ /$$__  $$                      | $$    |__/                    
+| $$  \ $$ /$$   /$$  /$$$$$$$ /$$$$$$   /$$  /$$$$$$  /$$$$$$$ 
+| $$$$$$$$| $$  | $$ /$$_____/|_  $$_/  | $$ /$$__  $$| $$__  $$
+| $$__  $$| $$  | $$| $$        | $$    | $$| $$  \ $$| $$  \ $$
+| $$  | $$| $$  | $$| $$        | $$ /$$| $$| $$  | $$| $$  | $$
+| $$  | $$|  $$$$$$/|  $$$$$$$  |  $$$$/| $$|  $$$$$$/| $$  | $$
+|__/  |__/ \______/  \_______/   \___/  |__/ \______/ |__/  |__/
+*/
+
+.auctionDiv {
+  display: var(--show-auction);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.auctionDiv > div:nth-of-type(1) {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  gap: 40px;
+  padding: 20px;
+}
+
+.auctionDiv .leftPart {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 30px;
+  width: 50%;
+  height: 100%;
+  justify-content: center;
+}
+
+.auctionCanvas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: 100%;
+  aspect-ratio: 4 / 5;
+
+  background: rgba(255, 255, 255, 1);
+  border: 8px solid #000;
+  border-radius: 12px;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25);
+  padding: 20px;
+}
+
+.auctionCanvas img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.bidControlling {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+
+  background: rgba(255, 255, 255, 1);
+  border: 8px solid #000;
+  border-radius: 12px;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25);
+  padding: 20px 30px;
+}
+
+.bidControlling p {
+  font-family: "Roboto", sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  text-align: center;
+  margin: 0;
+  color: #000;
+}
+
+.bidControlling p span {
+  font-weight: 700;
+  color: #2d5016;
+}
+
+.bidButton {
+  border-radius: 12px;
+  border: 5px solid #000;
+  background: rgb(178, 251, 165);
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25);
+  transition: all 100ms;
+  cursor: pointer;
+
+  color: #000;
+  font-family: "Roboto", sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  font-variant: all-small-caps;
+
+  padding: 8px 20px;
+  min-width: 120px;
+}
+
+.bidButton:hover {
+  transition: all 100ms;
+  background: rgb(122, 172, 113);
+}
+
+.bidButton:active {
+  transition: all 10ms;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25),
+    inset 2px 2px 5px rgba(0, 0, 0, 0.25);
+}
+
+.auctionDiv .rightPart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  width: 50%;
+  height: 100%;
+  justify-content: center;
+}
+
+.hintsList {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  max-width: 400px;
+
+  background: rgba(255, 255, 255, 1);
+  border: 8px solid #000;
+  border-radius: 12px;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25);
+  padding: 20px 30px;
+}
+
+.hintsList::before {
+  content: "Art Value Hints";
+  font-family: "Roboto", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #000;
+  text-align: center;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #000;
+  padding-bottom: 10px;
+}
+
+.artHint {
+  font-family: "Roboto", sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: #333;
+  margin: 0;
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.artHint:last-child {
+  border-bottom: none;
+}
+
+.balanceStatus {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+
+  background: rgba(255, 255, 255, 1);
+  border: 8px solid #000;
+  border-radius: 12px;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25);
+  padding: 20px 30px;
+}
+
+.balanceStatus p {
+  font-family: "Roboto", sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  text-align: center;
+  margin: 0;
+  color: #000;
+  line-height: 1.5;
+}
+
+.balanceStatus p span {
+  font-weight: 700;
+  color: #2d5016;
+}
+
+/*
+ /$$$$$$$                      /$$      
+| $$__  $$                    | $$      
+| $$  \ $$  /$$$$$$  /$$$$$$$ | $$   /$$
+| $$$$$$$  |____  $$| $$__  $$| $$  /$$/
+| $$__  $$  /$$$$$$$| $$  \ $$| $$$$$$/ 
+| $$  \ $$ /$$__  $$| $$  | $$| $$_  $$ 
+| $$$$$$$/|  $$$$$$$| $$  | $$| $$ \  $$
+|_______/  \_______/|__/  |__/|__/  \__/
+*/
+
+.bankDiv {
+  display: var(--show-bank);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.bankLogo {
+  max-width: 50%;
+  object-fit: contain;
+}
+
+.loanButton {
+  border-radius: 12px;
+  border: 5px solid #000;
+  background: rgb(178, 251, 165);
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25);
+  transition: all 100ms;
+  cursor: pointer;
+
+  color: #000;
+  font-family: "Roboto", sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+
+  padding: 8px 20px;
+  min-width: 120px;
+}
+
+.loanButton:hover {
+  transition: all 100ms;
+  background: rgb(122, 172, 113);
+}
+
+.loanButton:active {
+  transition: all 10ms;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25),
+    inset 2px 2px 5px rgba(0, 0, 0, 0.25);
+}
+
+/*
+ /$$$$$$$$                 /$$        /$$$$$$                                                   
+| $$_____/                | $$       /$$__  $$                                                  
+| $$       /$$$$$$$   /$$$$$$$      | $$  \__/  /$$$$$$$  /$$$$$$   /$$$$$$   /$$$$$$  /$$$$$$$ 
+| $$$$$   | $$__  $$ /$$__  $$      |  $$$$$$  /$$_____/ /$$__  $$ /$$__  $$ /$$__  $$| $$__  $$
+| $$__/   | $$  \ $$| $$  | $$       \____  $$| $$      | $$  \__/| $$$$$$$$| $$$$$$$$| $$  \ $$
+| $$      | $$  | $$| $$  | $$       /$$  \ $$| $$      | $$      | $$_____/| $$_____/| $$  | $$
+| $$$$$$$$| $$  | $$|  $$$$$$$      |  $$$$$$/|  $$$$$$$| $$      |  $$$$$$$|  $$$$$$$| $$  | $$
+|________/|__/  |__/ \_______/       \______/  \_______/|__/       \_______/ \_______/|__/  |__/
+*/
+
+.endScreen {
+  display: var(--show-end-screen);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.gameoverDialog {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  max-width: 600px;
+  width: 90%;
+
+  background: rgba(255, 255, 255, 1);
+  border: 8px solid #000;
+  border-radius: 12px;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25);
+  padding: 40px 30px;
+}
+
+.gameoverDialog > p {
+  color: #000;
+  font-family: "Roboto", sans-serif;
+  font-size: 48px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  margin: 0;
+  text-align: center;
+
+  border-bottom: 3px solid #000;
+}
+
+.gameoverDialog .leaderboard-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.gameoverDialog .leaderboard-title {
+  color: #000;
+  font-family: "Roboto", sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0;
+  padding-bottom: 10px;
+}
+
+.gameoverDialog .leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gameoverDialog .leaderboard-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background: #fff;
+  border: 3px solid #000;
+  border-radius: 8px;
+  box-shadow: 4px 4px 2px 0 rgba(0, 0, 0, 0.15);
+  transition: transform 0.1s ease;
+}
+
+.gameoverDialog .leaderboard-item.player-row {
+  background: #f0f8ff;
+  border-color: #2d5016;
+  border-width: 4px;
+}
+
+.gameoverDialog .leaderboard-rank {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+.gameoverDialog .rank-number {
+  background: #000;
+  color: #fff;
+  font-family: "Roboto", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.gameoverDialog .rank-number.first {
+  background: #ffd700;
+  color: #000;
+}
+
+.gameoverDialog .rank-number.second {
+  background: #c0c0c0;
+  color: #000;
+}
+
+.gameoverDialog .rank-number.third {
+  background: #cd7f32;
+  color: #fff;
+}
+
+.gameoverDialog .player-name {
+  color: #000;
+  font-family: "Roboto", sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.gameoverDialog .player-pnl {
+  color: #2d5016;
+  font-family: "Roboto", sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.gameoverDialog .player-pnl.negative {
+  color: #d32f2f;
+}
+
+.gameoverDialog button {
+  border-radius: 12px;
+  border: 5px solid #000;
+  background: rgb(178, 251, 165);
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25);
+  transition: all 100ms;
+  cursor: pointer;
+
+  color: #000;
+  font-family: "Roboto", sans-serif;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  font-variant: all-small-caps;
+
+  padding: 12px 25px;
+  min-width: 200px;
+}
+
+.gameoverDialog button:hover {
+  transition: all 100ms;
+  background: rgb(122, 172, 113);
+}
+
+.gameoverDialog button:active {
+  transition: all 10ms;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25),
+    inset 2px 2px 5px rgba(0, 0, 0, 0.25);
+}
