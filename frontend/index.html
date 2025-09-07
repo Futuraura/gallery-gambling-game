@@ -222,13 +222,12 @@
           placeholder="Your 'creative' nickname"
           id="nickNameInput"
         />
-        <button class="primaryButton" id="startmenuStartButton">
+        <button class="primaryButton" id="startMenuStartButton">
           Join the game
         </button>
       </div>
       <div class="connectionInfo">
-        <p>Connected to 127.0.0.1</p>
-        <p>Version DEV_1.0.1</p>
+        <p>Version <span id="versionNumber"></span></p>
       </div>
     </div>
 
@@ -238,10 +237,18 @@
       <div id="moneyBackground"></div>
     </div>
 
-    <script src="./assets/script.js"></script>
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.1/socket.io.min.js"
+      integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/toastify-js"
+    ></script>
+    <script src="./assets/script.js"></script>
     <script src="./assets/money-background.js"></script>
   </body>
 </html>
