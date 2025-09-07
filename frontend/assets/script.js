@@ -1,27 +1,64 @@
-const loadingScreen = document.getElementById("loadingScreenDiv");
-let webSocket;
+const socket = new io("ws://127.0.0.1:3001");
 
-fetch("./assets/config.json")
-  .then((r) => r.json())
-  .then((config) => {
-    console.log(`Connecting to websocket ${config.webSocketIP}`);
-    webSocket = new WebSocket(config.webSocketIP);
-  });
+const loadingScreenDiv = document.getElementById("loadingScreenDiv");
+const endScreen = document.getElementById("endScreen");
+const bankDiv = document.getElementById("bankDiv");
+const auctionDiv = document.getElementById("auctionDiv");
+const paintingDiv = document.getElementById("paintingDiv");
+const mainMenuDiv = document.getElementById("mainMenuDiv");
+const versionNumber = document.getElementById("versionNumber");
 
-window.addEventListener("load", () => {
-  loadingScreen.classList.toggle("hidden");
+function throwError(code, details) {
+  const errorCode = document.getElementById("errorCode");
+  const errorDetails = document.getElementById("errorMoreInfo");
+  const errorDiv = document.getElementById("somethingWentWrongDiv");
 
-  loadingScreen.addEventListener("transitionend", () => {
-    loadingScreen.style.display = "none";
+  errorDiv.style.display = "flex";
+
+  errorCode.innerText = code;
+  errorDetails.innerText = details;
+}
+
+socket.on("connect", () => {
+  socket.emit("openConnection", {}, (res) => {
+    console.log("Received response:", res);
+    console.log("Type of response:", typeof res);
+    let objectRes = JSON.parse(res);
+
+    versionNumber.innerText = objectRes.version;
+
+    mainMenuDiv.style.display = "flex";
+    loadingScreenDiv.classList.toggle("hidden");
+
+    loadingScreenDiv.addEventListener("transitionend", () => {
+      loadingScreenDiv.style.display = "none";
+    });
   });
 });
 
-const startButton = document.getElementById("startmenuStartButton");
-
-startButton.addEventListener("click", (e) => {
-  let playerInfo = {
-    type: "addPlayer",
-    playerName: document.getElementById("nickNameInput").value,
-  };
-  webSocket.send(JSON.stringify(playerInfo));
-});
+document
+  .getElementById("startMenuStartButton")
+  .addEventListener("click", (e) => {
+    socket.emit(
+      "playerJoin",
+      JSON.stringify({
+        playerName: document.getElementById("nickNameInput").value,
+      }),
+      (res) => {
+        let resObject = JSON.parse(res);
+        if (resObject.success) {
+          mainMenuDiv.style.display = "none";
+        } else if (!resObject.success) {
+          Toastify({
+            text: resObject.reason,
+            duration: 3000,
+            gravity: "bottom",
+            position: "right",
+            style: {
+              background: "linear-gradient(to right, #ff0000, #c0392b)",
+            },
+          }).showToast();
+        }
+      }
+    );
+  });
