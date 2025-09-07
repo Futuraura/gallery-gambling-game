@@ -1,14 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
 
-:root {
-  --show-background: flex;
-  --show-main-menu: none;
-  --show-painting: none;
-  --show-bank: none;
-  --show-auction: none;
-  --show-end-screen: flex;
-}
-
 * {
   user-select: none;
   margin: 0;
@@ -46,7 +37,7 @@ body {
 */
 
 .background-div {
-  display: var(--show-background);
+  display: flex;
   position: absolute;
   top: 0;
   left: 0;
@@ -215,7 +206,7 @@ body {
 |__/     |__/ \_______/|__/|__/  |__/      |__/     |__/ \_______/|__/  |__/ \______/ 
 */
 .mainMenuDiv {
-  display: var(--show-main-menu);
+  display: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -308,7 +299,7 @@ body {
                                                           \______/
 */
 .paintingDiv {
-  display: var(--show-painting);
+  display: none;
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -441,7 +432,7 @@ body {
 */
 
 .auctionDiv {
-  display: var(--show-auction);
+  display: none;
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -644,7 +635,7 @@ body {
 */
 
 .bankDiv {
-  display: var(--show-bank);
+  display: none;
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -703,7 +694,7 @@ body {
 */
 
 .endScreen {
-  display: var(--show-end-screen);
+  display: none;
   align-items: center;
   justify-content: center;
   flex-direction: column;
