@@ -8,8 +8,29 @@
     />
     <title>Gallery Gambling</title>
     <link rel="stylesheet" href="./assets/style.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+    />
   </head>
   <body>
+    <div id="somethingWentWrongDiv" class="somethingWentWrongDiv">
+      <div class="errorInfo">
+        <p class="errorCode">Error <span id="errorCode">0x000</span></p>
+        <details>
+          <summary>Информация для разработчика</summary>
+          <p id="errorMoreInfo">Без информации</p>
+        </details>
+      </div>
+      <div id="trollImage">
+        <img
+          src="./assets/img/sandcastle.png"
+          alt="Something went wrong image"
+        />
+      </div>
+    </div>
+
     <div id="loadingScreenDiv" class="loadingDiv">
       <img
         src="./assets/img/loading.png"
