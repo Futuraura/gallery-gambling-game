@@ -1,33 +1,27 @@
-import { WebSocketServer } from "ws";
+import { Server } from "socket.io";
 
-const wss = new WebSocketServer({ port: 3001 });
+const io = new Server(3001, {
+  cors: {
+    origin: "*",
+  },
+});
 
-let availableColors = [
-  "red",
-  "blue",
-  "green",
-  "yellow",
-  "gray",
-  "orange",
-  "purple",
-];
+io.on("connection", (socket) => {
+  console.log(`New client connected. Assigned the ID: ${socket.id}`);
 
-let players = {};
-
-wss.on("connection", (ws) => {
-  ws.on("message", (data) => {
-    let objectData = JSON.parse(data);
-    switch (objectData.type) {
-      case "addPlayer":
-        console.log(`Player ${objectData.playerName} added!`);
-        ws.send();
-
-        break;
-
-      default:
-        break;
-    }
+  socket.on("openConnection", (arg, callback) => {
+    console.log(arg);
+    callback(JSON.stringify({ version: "Alpha DEV_0.0.1" }));
   });
 
-  ws.send("sumthin");
+  socket.on("playerJoin", (arg, callback) => {
+    let argObject = JSON.parse(arg);
+    if (argObject.playerName === "test") {
+      console.log(`Rejecting player ${argObject.playerName}`);
+      callback(JSON.stringify({ success: false, reason: "No." }));
+    } else {
+      console.log(`Adding player ${argObject.playerName}`);
+      callback(JSON.stringify({ success: true }));
+    }
+  });
 });
