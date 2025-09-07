@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Futuraura/gallery-gambling-game#readme",
   "dependencies": {
+    "socket.io": "^4.8.1",
     "ws": "^8.18.3"
   }
 }
