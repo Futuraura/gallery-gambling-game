@@ -1,4 +1,8 @@
 import { Server } from "socket.io";
+import dotenv from "dotenv";
+
+dotenv.config({ path: ".env" });
+const VERSION = process.env.APP_VERSION;
 
 const io = new Server(3001, {
   cors: {
