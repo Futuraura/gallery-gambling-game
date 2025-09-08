@@ -91,10 +91,17 @@ io.on("connection", (socket) => {
       let argObject = JSON.parse(arg);
       if (argObject.playerName === "test") {
         console.log(`Rejecting player ${argObject.playerName}`);
-        callback(JSON.stringify({ success: false, reason: "No." }));
+        callback(JSON.stringify({ success: false, reason: "Nah." }));
       } else {
         console.log(`Adding player ${argObject.playerName}`);
-        callback(JSON.stringify({ success: true }));
+        if (colors.length === 0) {
+          console.log("No colors left!");
+          callback(
+            JSON.stringify({ success: false, reason: "The game is full." })
+          );
+        } else {
+          callback(JSON.stringify({ success: true }));
+        }
       }
     } catch (e) {
       console.warn("Invalid playerJoin payload", { arg, error: e?.message });
