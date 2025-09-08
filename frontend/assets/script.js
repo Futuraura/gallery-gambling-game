@@ -1,4 +1,4 @@
-const socket = new io("ws://127.0.0.1:3001");
+const socket = io("http://127.0.0.1:3001", { transports: ["websocket"] });
 
 const loadingScreenDiv = document.getElementById("loadingScreenDiv");
 const endScreen = document.getElementById("endScreen");
@@ -20,7 +20,11 @@ function throwError(code, details) {
 }
 
 socket.on("connect", () => {
-  socket.emit("openConnection", {}, (res) => {
+  socket.timeout(5000).emit("openConnection", {}, (err, res) => {
+    if (err) {
+      throwError("0x002", "Handshake timeout.");
+      return;
+    }
     console.log("Received response:", res);
     console.log("Type of response:", typeof res);
     let objectRes = JSON.parse(res);
