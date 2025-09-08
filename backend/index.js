@@ -55,7 +55,35 @@ io.on("connection", (socket) => {
   console.log(`New client connected. Assigned the ID: ${socket.id}`);
 
   socket.on("openConnection", (arg, callback) => {
-    callback(JSON.stringify({ version: VERSION }));
+    let argObject = JSON.parse(arg);
+    if (argObject.UUID) {
+      let player = players.find((p) => p.UUID === argObject.UUID);
+      if (player) {
+        player.socketID = socket.id;
+        player.UUIDvalidUntil = Date.now() + 1800000;
+        console.log(`Reconnected player ${player.nickname}`);
+        return callback(
+          JSON.stringify({
+            UUID: player.UUID,
+            UUIDvalidUntil: player.UUIDvalidUntil,
+            version: VERSION,
+            success: true,
+          })
+        );
+      }
+    }
+
+    const newUUID = uuidv4();
+    const UUIDvalidUntil = Date.now() + 1800000;
+
+    callback(
+      JSON.stringify({
+        UUID: newUUID,
+        UUIDvalidUntil: UUIDvalidUntil,
+        version: VERSION,
+        success: true,
+      })
+    );
   });
 
   socket.on("playerJoin", (arg, callback) => {
