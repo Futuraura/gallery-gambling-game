@@ -14,7 +14,6 @@ io.on("connection", (socket) => {
   console.log(`New client connected. Assigned the ID: ${socket.id}`);
 
   socket.on("openConnection", (arg, callback) => {
-    console.log(arg);
     callback(JSON.stringify({ version: VERSION }));
   });
 
