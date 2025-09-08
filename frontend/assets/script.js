@@ -20,24 +20,55 @@ function throwError(code, details) {
 }
 
 socket.on("connect", () => {
-  socket.timeout(5000).emit("openConnection", {}, (err, res) => {
-    if (err) {
-      throwError("0x002", "Handshake timeout.");
-      return;
+  if (!socket.connected) {
+    throwError("0x001", "Could not connect to the server.");
+    return;
+  }
+
+  let authData = {};
+
+  if (localStorage.getItem("Auth")) {
+    let auth = JSON.parse(localStorage.getItem("Auth"));
+    if (auth.UUIDvalidUntil < Date.now()) {
+      localStorage.removeItem("Auth");
+      authData = {};
+    } else {
+      authData = auth;
     }
-    console.log("Received response:", res);
-    console.log("Type of response:", typeof res);
-    let objectRes = JSON.parse(res);
+  }
 
-    versionNumber.innerText = objectRes.version;
+  socket
+    .timeout(5000)
+    .emit("openConnection", JSON.stringify(authData), (err, res) => {
+      if (err) {
+        throwError("0x002", "Handshake timeout.");
+        return;
+      }
 
-    mainMenuDiv.style.display = "flex";
-    loadingScreenDiv.classList.toggle("hidden");
+      let objectRes = JSON.parse(res);
 
-    loadingScreenDiv.addEventListener("transitionend", () => {
-      loadingScreenDiv.style.display = "none";
+      if (objectRes.success === false) {
+        throwError("0x003", "Handshake failed.");
+        return;
+      }
+
+      localStorage.setItem(
+        "Auth",
+        JSON.stringify({
+          UUID: objectRes.UUID,
+          UUIDvalidUntil: objectRes.UUIDvalidUntil,
+        })
+      );
+
+      versionNumber.innerText = objectRes.version;
+
+      mainMenuDiv.style.display = "flex";
+      loadingScreenDiv.classList.toggle("hidden");
+
+      loadingScreenDiv.addEventListener("transitionend", () => {
+        loadingScreenDiv.style.display = "none";
+      });
     });
-  });
 });
 
 document
