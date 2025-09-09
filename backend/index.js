@@ -1,173 +1,279 @@
 import { Server } from "socket.io";
 import dotenv from "dotenv";
-import { v4 as uuidv4 } from "uuid";
+import { createServer } from "http";
 
-console.log("Starting application...");
+function colorfulLog(message, mode = "info", department = "general") {
+  const timestamp = new Date().toISOString();
+  const colors = {
+    todo: "\u001b[34m", // Light Blue
+    info: "\u001b[32m", // Light Green
+    warn: "\u001b[33m", // Yellow
+    error: "\u001b[31m", // Red
+  };
+
+  console.log(
+    `[${timestamp}] [${department.toUpperCase()}]\t${
+      colors[mode]
+    }${message}\x1b[0m`
+  );
+}
+
+colorfulLog("Starting application...", "info", "startup");
 dotenv.config({ path: ".env" });
 const VERSION = process.env.APP_VERSION;
-console.log(`App version: ${VERSION}`);
+colorfulLog(`App version: ${VERSION}`, "info", "startup");
 
 let colors = ["red", "blue", "green", "orange", "purple", "yellow", "gray"];
-console.log(`Available colors: ${colors.join(", ")}`);
+colorfulLog(`Available colors: ${colors.join(", ")}`, "info", "startup");
 
 let gameState = {
   state: "waiting", // waiting, painting, auction, bank, ended
+  /* 
+    Example artwork structure for future use:
+    {
+      id: 1,
+      prompt: "A duck",
+      artist: <playerID>,
+      price: 4800,
+      base64: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAYAAAC0...",
+    }
+  */
+  artwork: [],
   players: [],
 };
 
 class Player {
-  UUID;
   socketID;
   nickname;
   color;
-  UUIDvalidUntil;
 
   balance;
   loans;
   paintings;
 
-  constructor(UUID, socketID, nickname, UUIDvalidUntil) {
-    console.log(
-      `Creating new player:\nUUID: ${UUID}\nsocketID: ${socketID}\nnickname: ${nickname}`
-    );
-    this.UUID = UUID;
+  constructor(socketID, nickname) {
     this.socketID = socketID;
     this.nickname = nickname;
-    this.color = colors.slice(Math.floor(Math.random() * colors.length), 1);
-    this.UUIDvalidUntil = UUIDvalidUntil;
+    this.color = colors.splice(Math.floor(Math.random() * colors.length), 1)[0];
 
     this.balance = 3000;
     this.loans = 0;
     this.paintings = 0;
-    console.log(
-      `Player created with:\ncolor: ${this.color}\nbalance: ${this.balance}`
-    );
+    this.getPlayerInfo();
   }
 
   getPlayerInfo() {
-    console.log(`
-UUID: ${this.UUID}
-SocketID: ${this.socketID}
-Nickname: ${this.nickname}
-Color: ${this.color}
-Balance: ${this.balance}
-Loans: ${this.loans}
-Paintings: ${this.paintings}
-    `);
+    colorfulLog(
+      `Player info: SocketID: ${this.socketID}, Nickname: ${this.nickname}, Color: ${this.color}, Balance: ${this.balance}, Loans: ${this.loans}, Paintings: ${this.paintings}`,
+      "info",
+      "player"
+    );
   }
 }
 
-let players = [];
-console.log("Players array initialized");
+colorfulLog("Players array initialized", "info", "game");
 
-const io = new Server(3001, {
+const httpServer = createServer();
+colorfulLog("HTTP server created", "info", "startup");
+
+const io = new Server(httpServer, {
   cors: {
     origin: "*",
   },
 });
-console.log("Socket.IO server created on port 3001");
+
+const HOST = process.env.HOST;
+const PORT = process.env.PORT;
+
+httpServer.listen(PORT, HOST, () => {
+  colorfulLog(`HTTP server listening on ${HOST}:${PORT}`, "info", "startup");
+});
+
+colorfulLog("Socket.IO server created on port 3001", "info", "startup");
 
 io.on("connection", (socket) => {
-  console.log(`New client connected. Assigned the ID: ${socket.id}`);
-  console.log(`Total active connections: ${io.engine.clientsCount}`);
+  colorfulLog(
+    `New client connected from ${socket.handshake.address}. Assigned the ID: ${socket.id}`,
+    "info",
+    "connection"
+  );
+  colorfulLog(
+    `Total active connections: ${io.engine.clientsCount}`,
+    "info",
+    "connection"
+  );
 
   socket.on("openConnection", (arg, callback) => {
-    console.log(`Received openConnection request: ${arg}`);
-    let argObject = JSON.parse(arg);
-    console.log(`Parsed argument object:`, argObject);
-
-    if (argObject.UUID) {
-      console.log(`Looking for existing player with UUID: ${argObject.UUID}`);
-      let player = players.find((p) => p.UUID === argObject.UUID);
-      if (player) {
-        console.log(`Found existing player: ${player.nickname}`);
-        player.socketID = socket.id;
-        player.UUIDvalidUntil = Date.now() + 1800000;
-        console.log(
-          `Reconnected player ${player.nickname} with new socket ID: ${socket.id}`
-        );
-        return callback(
-          JSON.stringify({
-            UUID: player.UUID,
-            UUIDvalidUntil: player.UUIDvalidUntil,
-            version: VERSION,
-            success: true,
-          })
-        );
-      } else {
-        console.log(`No existing player found with UUID: ${argObject.UUID}`);
-      }
-    } else {
-      console.log("No UUID provided in request");
-    }
-
-    const newUUID = uuidv4();
-    const UUIDvalidUntil = Date.now() + 1800000;
-    console.log(
-      `Generated new UUID: ${newUUID}, valid until: ${new Date(UUIDvalidUntil)}`
-    );
+    colorfulLog(`Received openConnection request: ${arg}`, "info", "socket");
 
     callback(
       JSON.stringify({
-        UUID: newUUID,
-        UUIDvalidUntil: UUIDvalidUntil,
         version: VERSION,
         success: true,
       })
     );
-    console.log(`Sent new UUID response to client`);
   });
 
   socket.on("playerJoin", (arg, callback) => {
-    console.log(`Received playerJoin request: ${arg}`);
+    colorfulLog(`Received playerJoin request: ${arg}`, "info", "socket");
     try {
       let argObject = JSON.parse(arg);
-      console.log(`Parsed playerJoin object:`, argObject);
+      colorfulLog(`Parsed playerJoin object:`, "info", "socket", argObject);
+
+      /* Running some validations for the player nickname */
 
       if (argObject.playerName === "test") {
-        console.log(
-          `Rejecting player ${argObject.playerName} - test name not allowed`
+        colorfulLog(
+          `Rejecting player ${argObject.playerName} - test name not allowed`,
+          "warn",
+          "validation"
         );
         callback(JSON.stringify({ success: false, reason: "Nah." }));
-      } else {
-        console.log(
-          `Processing join request for player: ${argObject.playerName}`
+      } else if (
+        gameState.players.find((p) => p.nickname === argObject.playerName)
+      ) {
+        colorfulLog(
+          `Rejecting player ${argObject.playerName} - name already taken`,
+          "warn",
+          "validation"
         );
-        console.log(`Available colors remaining: ${colors.length}`);
+        callback(
+          JSON.stringify({ success: false, reason: "Name already taken." })
+        );
+      } else if (
+        argObject.playerName.length < 3 ||
+        argObject.playerName.length > 16
+      ) {
+        colorfulLog(
+          `Rejecting player ${argObject.playerName} - invalid name length`,
+          "warn",
+          "validation"
+        );
+        callback(
+          JSON.stringify({ success: false, reason: "Invalid name length." })
+        );
+      } else if (argObject.playerName.match(/[^a-zA-Z0-9_]/)) {
+        colorfulLog(
+          `Rejecting player ${argObject.playerName} - invalid characters`,
+          "warn",
+          "validation"
+        );
+        callback(
+          JSON.stringify({ success: false, reason: "Invalid characters." })
+        );
+      } else {
+        /* All validations passed, proceed to add the player */
+        colorfulLog(
+          `Processing join request for player: ${argObject.playerName}`,
+          "info",
+          "player"
+        );
+        colorfulLog(
+          `Available colors remaining: ${colors.length}`,
+          "info",
+          "game"
+        );
 
         if (colors.length === 0) {
-          console.log("No colors left! Game is full.");
+          colorfulLog("No colors left! Game is full.", "warn", "game");
           callback(
             JSON.stringify({ success: false, reason: "The game is full." })
           );
+        } else if (gameState.state === "ended") {
+          colorfulLog(
+            "Game has ended. No new players can join.",
+            "warn",
+            "game"
+          );
+          callback(
+            JSON.stringify({ success: false, reason: "Game has ended." })
+          );
         } else {
-          console.log(
+          colorfulLog(
             `Accepting player ${
               argObject.playerName
-            } - colors available: ${colors.join(", ")}`
+            } - colors available: ${colors.join(", ")}`,
+            "info",
+            "player"
           );
+          gameState.players.push(new Player(socket.id, argObject.playerName));
           callback(JSON.stringify({ success: true }));
+          io.emit("playerUpdate", JSON.stringify(gameState.players));
+          socket.emit("gameStateUpdate", JSON.stringify(gameState.state));
+          if (gameState.players.length >= 3) {
+            colorfulLog(
+              "Minimum players reached. Starting game...",
+              "info",
+              "game"
+            );
+
+            /* TBD: Make this into a ticking timer on user's screen and make the game begin properly */
+
+            setTimeout(() => {
+              gameState.state = "painting";
+              io.emit("gameStateUpdate", JSON.stringify(gameState.state));
+              colorfulLog(
+                "Game state updated to 'painting' and broadcasted.",
+                "info",
+                "game"
+              );
+            }, 10000);
+          }
         }
       }
     } catch (e) {
-      console.error("Error processing playerJoin request:", e);
-      console.warn("Invalid playerJoin payload", { arg, error: e?.message });
+      colorfulLog(
+        `Error processing playerJoin request: ${e}`,
+        "error",
+        "socket"
+      );
+      colorfulLog(
+        `Invalid playerJoin payload - arg: ${arg}, error: ${e?.message}`,
+        "warn",
+        "socket"
+      );
       if (typeof callback === "function") {
-        console.log("Sending error response to client");
-        callback({ success: false, reason: "Invalid payload" });
+        colorfulLog("Sending error response to client", "info", "socket");
+        callback(JSON.stringify({ success: false, reason: "Invalid payload" }));
       }
     }
   });
 
   socket.on("disconnect", (reason) => {
-    console.log(`Client ${socket.id} disconnected. Reason: ${reason}`);
-    console.log(`Total active connections: ${io.engine.clientsCount}`);
+    colorfulLog(
+      `Client ${socket.id} disconnected. Reason: ${reason}`,
+      "info",
+      "connection"
+    );
+    colorfulLog(
+      `Total active connections: ${io.engine.clientsCount}`,
+      "info",
+      "connection"
+    );
 
-    const disconnectedPlayer = players.find((p) => p.socketID === socket.id);
+    const disconnectedPlayer = gameState.players.find(
+      (p) => p.socketID === socket.id
+    );
     if (disconnectedPlayer) {
-      console.log(
-        `Disconnected player: ${disconnectedPlayer.nickname} (UUID: ${disconnectedPlayer.UUID})`
+      const playersIndex = gameState.players.indexOf(disconnectedPlayer);
+      if (playersIndex !== -1) {
+        gameState.players.splice(playersIndex, 1);
+      }
+      colors.push(disconnectedPlayer.color);
+      colorfulLog(
+        `Disconnected player: ${disconnectedPlayer.nickname}`,
+        "info",
+        "player"
       );
+      io.emit("playerUpdate", JSON.stringify(gameState.players));
+      if (gameState.players.length === 0) {
+        /* TBD: Reset game state if all players leave */
+        colorfulLog(
+          "All players have left. Game state reset TBD.",
+          "todo",
+          "game"
+        );
+      }
     }
   });
 });
