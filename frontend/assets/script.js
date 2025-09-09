@@ -36,7 +36,12 @@ function switchScreen(screen) {
 }
 
 socket.on("playerUpdate", (data) => {
-  let players = JSON.parse(data);
+  try {
+    let players = JSON.parse(data);
+  } catch (e) {
+    console.error("Error parsing player data:", e);
+    return;
+  }
   const playerListAuction = document.getElementById("playerListAuction");
   const playerListPainting = document.getElementById("playerListPainting");
   playerListAuction.innerHTML = "";
@@ -57,13 +62,18 @@ socket.on("playerUpdate", (data) => {
 const dotsElem = document.getElementById("connectedDots");
 const frames = ["", ".", "..", "..."];
 let frame = 0;
-setInterval(() => {
+let dotsInterval = setInterval(() => {
   dotsElem.innerText = frames[frame];
   frame = (frame + 1) % frames.length;
 }, 300);
 
 socket.on("gameStateUpdate", (data) => {
-  let gameState = JSON.parse(data);
+  try {
+    let gameState = JSON.parse(data);
+  } catch (error) {
+    console.error("Error parsing game state data:", error);
+    return;
+  }
   switch (gameState) {
     case "waiting":
       switchScreen(waitingScreenDiv);
