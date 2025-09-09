@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import dotenv from "dotenv";
 import { createServer } from "http";
+import { clear } from "console";
 
 function colorfulLog(message, mode = "info", department = "general") {
   const timestamp = new Date().toISOString();
@@ -89,7 +90,7 @@ httpServer.listen(PORT, HOST, () => {
   colorfulLog(`HTTP server listening on ${HOST}:${PORT}`, "info", "startup");
 });
 
-colorfulLog("Socket.IO server created on port 3001", "info", "startup");
+colorfulLog("Socket.IO server created", "info", "startup");
 
 io.on("connection", (socket) => {
   colorfulLog(
