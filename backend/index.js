@@ -208,8 +208,7 @@ io.on("connection", (socket) => {
             );
 
             /* TBD: Make this into a ticking timer on user's screen and make the game begin properly */
-
-            setTimeout(() => {
+            var gameStartTimer = setTimeout(() => {
               gameState.state = "painting";
               io.emit("gameStateUpdate", JSON.stringify(gameState.state));
               colorfulLog(
@@ -217,6 +216,7 @@ io.on("connection", (socket) => {
                 "info",
                 "game"
               );
+              gameStartTimer = null;
             }, 10000);
           }
         }
@@ -271,6 +271,14 @@ io.on("connection", (socket) => {
         colorfulLog(
           "All players have left. Game state reset TBD.",
           "todo",
+          "game"
+        );
+      }
+      if (gameState.players.length < 3 && gameState.state === "waiting") {
+        if (gameStartTimer) clearTimeout(gameStartTimer);
+        colorfulLog(
+          "Not enough players to start the game. Waiting timer cleared.",
+          "info",
           "game"
         );
       }
