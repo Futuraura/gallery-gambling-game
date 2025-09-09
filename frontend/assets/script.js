@@ -19,6 +19,17 @@ function throwError(code, details) {
   errorDetails.innerText = details;
 }
 
+function switchScreen(screen) {
+  loadingScreenDiv.style.display = "none";
+  endScreen.style.display = "none";
+  bankDiv.style.display = "none";
+  auctionDiv.style.display = "none";
+  paintingDiv.style.display = "none";
+  mainMenuDiv.style.display = "none";
+
+  screen.style.display = "flex";
+}
+
 socket.on("connect", () => {
   if (!socket.connected) {
     throwError("0x001", "Could not connect to the server.");
