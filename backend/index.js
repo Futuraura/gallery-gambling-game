@@ -1,7 +1,9 @@
 import { Server } from "socket.io";
 import dotenv from "dotenv";
 import { createServer } from "http";
-import { clear } from "console";
+import bcrypt from "bcrypt";
+
+let gameStartTimer = null;
 
 function colorfulLog(message, mode = "info", department = "general") {
   const timestamp = new Date().toISOString();
@@ -98,11 +100,48 @@ io.on("connection", (socket) => {
     "info",
     "connection"
   );
-  colorfulLog(
-    `Total active connections: ${io.engine.clientsCount}`,
-    "info",
-    "connection"
-  );
+  colorfulLog(`Total active connections: ${io.engine.clientsCount}`, "info", "connection");
+
+  socket.on("adminOverride", (arg, callback) => {
+    let argObject = JSON.parse(arg);
+    colorfulLog(`Received adminOverride request`, "info", "admin");
+    /* Example admin override structure:
+    {
+      password: "adminPassword",
+      command: "overrideGameState", // Possible actions: overrideGameState, kickPlayer
+      parameters: "" // could be anything, but for overrideGameState it would be the new state
+    }
+
+    Callbacks are for later use, currently not implemented on frontend
+    */
+    bcrypt.compare(argObject.password, process.env.ADMIN_OVERRIDE_HASH).then((result) => {
+      if (result) {
+        colorfulLog("Admin password correct", "info", "admin");
+        switch (argObject.command) {
+          case "overrideGameState":
+            if (
+              ["waiting", "painting", "auction", "bank", "ended"].includes(argObject.parameters)
+            ) {
+              gameState.state = argObject.parameters;
+              io.emit("gameStateUpdate", JSON.stringify(gameState.state));
+              colorfulLog(`Game state overridden to ${argObject.parameters}`, "info", "admin");
+              /* callback(JSON.stringify({ success: true }));*/
+            } else {
+              colorfulLog(`Invalid game state: ${argObject.parameters}`, "warn", "admin");
+              /* callback(
+                JSON.stringify({
+                  success: false,
+                  reason: "Invalid game state",
+                })
+              ); */
+            }
+        }
+      } else {
+        colorfulLog("Admin password incorrect", "warn", "admin");
+        /* callback(JSON.stringify({ success: false, reason: "Invalid admin password" })); */
+      }
+    });
+  });
 
   socket.on("openConnection", (arg, callback) => {
     colorfulLog(`Received openConnection request: ${arg}`, "info", "socket");
