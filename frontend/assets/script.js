@@ -49,10 +49,18 @@ socket.on("playerUpdate", (data) => {
   players.forEach((element) => {
     const playerDiv = document.createElement("div");
     playerDiv.classList.add("player");
-    playerDiv.innerHTML = `
-      <p class="playerNickname">${element.nickname}</p>
-      <img src="./assets/img/player.svg" style="color: ${element.color}" />
-    `;
+
+    const nicknameElement = document.createElement("p");
+    nicknameElement.className = "playerNickname";
+    nicknameElement.textContent = element.nickname;
+
+    const imgElement = document.createElement("img");
+    imgElement.src = "./assets/img/player.svg";
+    imgElement.style.color = element.color;
+
+    playerDiv.appendChild(nicknameElement);
+    playerDiv.appendChild(imgElement);
+
     playerListAuction.appendChild(playerDiv);
     playerListPainting.appendChild(playerDiv.cloneNode(true));
   });
@@ -87,6 +95,11 @@ socket.on("gameStateUpdate", (data) => {
     case "bank":
       switchScreen(bankDiv);
       break;
+    case "end":
+      switchScreen(endScreen);
+      break;
+    default:
+      console.error("Unknown game state:", gameState);
   }
 });
 
