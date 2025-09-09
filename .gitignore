@@ -1,2 +1,3 @@
 backend/node_modules/
 frontend/assets/config.json
+backend/.env
