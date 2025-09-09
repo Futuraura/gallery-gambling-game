@@ -1,5 +1,6 @@
 const socket = io("http://127.0.0.1:3001", { transports: ["websocket"] });
 
+const waitingScreenDiv = document.getElementById("waitingScreenDiv");
 const loadingScreenDiv = document.getElementById("loadingScreenDiv");
 const endScreen = document.getElementById("endScreen");
 const bankDiv = document.getElementById("bankDiv");

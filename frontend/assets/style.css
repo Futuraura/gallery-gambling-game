@@ -256,6 +256,34 @@ body {
   line-height: normal;
 }
 
+/* Waiting for players screen */
+
+.waitingScreenDiv {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  gap: 40px;
+
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.waitingText {
+  color: #000;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  text-align: center;
+}
+
 /*
  /$$      /$$           /$$                 /$$      /$$                              
 | $$$    /$$$          |__/                | $$$    /$$$                              
