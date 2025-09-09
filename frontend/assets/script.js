@@ -1,4 +1,7 @@
-const socket = io("http://127.0.0.1:3001", { transports: ["websocket"] });
+let config = fetch("./assets/config.json").then((response) => {
+  return response.json();
+});
+const socket = io(config.backendIP, { transports: ["websocket"] });
 
 const waitingScreenDiv = document.getElementById("waitingScreenDiv");
 const loadingScreenDiv = document.getElementById("loadingScreenDiv");
