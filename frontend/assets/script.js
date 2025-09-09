@@ -21,6 +21,7 @@ function throwError(code, details) {
 }
 
 function switchScreen(screen) {
+  waitingScreenDiv.style.display = "none";
   loadingScreenDiv.style.display = "none";
   endScreen.style.display = "none";
   bankDiv.style.display = "none";
@@ -31,27 +32,55 @@ function switchScreen(screen) {
   screen.style.display = "flex";
 }
 
+socket.on("playerUpdate", (data) => {
+  let players = JSON.parse(data);
+  const playerListAuction = document.getElementById("playerListAuction");
+  const playerListPainting = document.getElementById("playerListPainting");
+  playerListAuction.innerHTML = "";
+  playerListPainting.innerHTML = "";
+  players.forEach((element) => {
+    const playerDiv = document.createElement("div");
+    playerDiv.classList.add("player");
+    playerDiv.innerHTML = `
+      <p class="playerNickname">${element.nickname}</p>
+      <img src="./assets/img/player.svg" style="color: ${element.color}" />
+    `;
+    playerListAuction.appendChild(playerDiv);
+    playerListPainting.appendChild(playerDiv.cloneNode(true));
+  });
+  document.getElementById("connectedPlayersCount").innerText = players.length;
+});
+
+const dotsElem = document.getElementById("connectedDots");
+const frames = ["", ".", "..", "..."];
+let frame = 0;
+setInterval(() => {
+  dotsElem.innerText = frames[frame];
+  frame = (frame + 1) % frames.length;
+}, 300);
+
+socket.on("gameStateUpdate", (data) => {
+  let gameState = JSON.parse(data);
+  switch (gameState) {
+    case "waiting":
+      switchScreen(waitingScreenDiv);
+      break;
+    case "painting":
+      switchScreen(paintingDiv);
+      break;
+    case "auction":
+      switchScreen(auctionDiv);
+      break;
+    case "bank":
+      switchScreen(bankDiv);
+      break;
+  }
+});
+
 socket.on("connect", () => {
-  if (!socket.connected) {
-    throwError("0x001", "Could not connect to the server.");
-    return;
-  }
-
-  let authData = {};
-
-  if (localStorage.getItem("Auth")) {
-    let auth = JSON.parse(localStorage.getItem("Auth"));
-    if (auth.UUIDvalidUntil < Date.now()) {
-      localStorage.removeItem("Auth");
-      authData = {};
-    } else {
-      authData = auth;
-    }
-  }
-
   socket
     .timeout(5000)
-    .emit("openConnection", JSON.stringify(authData), (err, res) => {
+    .emit("openConnection", JSON.stringify({}), (err, res) => {
       if (err) {
         throwError("0x002", "Handshake timeout.");
         return;
@@ -64,14 +93,6 @@ socket.on("connect", () => {
         return;
       }
 
-      localStorage.setItem(
-        "Auth",
-        JSON.stringify({
-          UUID: objectRes.UUID,
-          UUIDvalidUntil: objectRes.UUIDvalidUntil,
-        })
-      );
-
       versionNumber.innerText = objectRes.version;
 
       mainMenuDiv.style.display = "flex";
@@ -81,6 +102,10 @@ socket.on("connect", () => {
         loadingScreenDiv.style.display = "none";
       });
     });
+});
+
+socket.on("disconnect", () => {
+  throwError("0x001", "Disconnected from server.");
 });
 
 document
@@ -93,9 +118,7 @@ document
       }),
       (res) => {
         let resObject = JSON.parse(res);
-        if (resObject.success) {
-          mainMenuDiv.style.display = "none";
-        } else if (!resObject.success) {
+        if (!resObject.success) {
           Toastify({
             text: resObject.reason,
             duration: 3000,
