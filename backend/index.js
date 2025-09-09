@@ -14,11 +14,7 @@ function colorfulLog(message, mode = "info", department = "general") {
     error: "\u001b[31m", // Red
   };
 
-  console.log(
-    `[${timestamp}] [${department.toUpperCase()}]\t${
-      colors[mode]
-    }${message}\x1b[0m`
-  );
+  console.log(`[${timestamp}] [${department.toUpperCase()}]\t${colors[mode]}${message}\x1b[0m`);
 }
 
 colorfulLog("Starting application...", "info", "startup");
@@ -169,38 +165,27 @@ io.on("connection", (socket) => {
           "validation"
         );
         callback(JSON.stringify({ success: false, reason: "Nah." }));
-      } else if (
-        gameState.players.find((p) => p.nickname === argObject.playerName)
-      ) {
+      } else if (gameState.players.find((p) => p.nickname === argObject.playerName)) {
         colorfulLog(
           `Rejecting player ${argObject.playerName} - name already taken`,
           "warn",
           "validation"
         );
-        callback(
-          JSON.stringify({ success: false, reason: "Name already taken." })
-        );
-      } else if (
-        argObject.playerName.length < 3 ||
-        argObject.playerName.length > 16
-      ) {
+        callback(JSON.stringify({ success: false, reason: "Name already taken." }));
+      } else if (argObject.playerName.length < 3 || argObject.playerName.length > 16) {
         colorfulLog(
           `Rejecting player ${argObject.playerName} - invalid name length`,
           "warn",
           "validation"
         );
-        callback(
-          JSON.stringify({ success: false, reason: "Invalid name length." })
-        );
+        callback(JSON.stringify({ success: false, reason: "Invalid name length." }));
       } else if (argObject.playerName.match(/[^a-zA-Z0-9_]/)) {
         colorfulLog(
           `Rejecting player ${argObject.playerName} - invalid characters`,
           "warn",
           "validation"
         );
-        callback(
-          JSON.stringify({ success: false, reason: "Invalid characters." })
-        );
+        callback(JSON.stringify({ success: false, reason: "Invalid characters." }));
       } else {
         /* All validations passed, proceed to add the player */
         colorfulLog(
@@ -208,31 +193,17 @@ io.on("connection", (socket) => {
           "info",
           "player"
         );
-        colorfulLog(
-          `Available colors remaining: ${colors.length}`,
-          "info",
-          "game"
-        );
+        colorfulLog(`Available colors remaining: ${colors.length}`, "info", "game");
 
         if (colors.length === 0) {
           colorfulLog("No colors left! Game is full.", "warn", "game");
-          callback(
-            JSON.stringify({ success: false, reason: "The game is full." })
-          );
+          callback(JSON.stringify({ success: false, reason: "The game is full." }));
         } else if (gameState.state === "ended") {
-          colorfulLog(
-            "Game has ended. No new players can join.",
-            "warn",
-            "game"
-          );
-          callback(
-            JSON.stringify({ success: false, reason: "Game has ended." })
-          );
+          colorfulLog("Game has ended. No new players can join.", "warn", "game");
+          callback(JSON.stringify({ success: false, reason: "Game has ended." }));
         } else {
           colorfulLog(
-            `Accepting player ${
-              argObject.playerName
-            } - colors available: ${colors.join(", ")}`,
+            `Accepting player ${argObject.playerName} - colors available: ${colors.join(", ")}`,
             "info",
             "player"
           );
@@ -241,32 +212,20 @@ io.on("connection", (socket) => {
           io.emit("playerUpdate", JSON.stringify(gameState.players));
           socket.emit("gameStateUpdate", JSON.stringify(gameState.state));
           if (gameState.players.length >= 3) {
-            colorfulLog(
-              "Minimum players reached. Starting game...",
-              "info",
-              "game"
-            );
+            colorfulLog("Minimum players reached. Starting game...", "info", "game");
 
             /* TBD: Make this into a ticking timer on user's screen and make the game begin properly */
-            var gameStartTimer = setTimeout(() => {
+            gameStartTimer = setTimeout(() => {
               gameState.state = "painting";
               io.emit("gameStateUpdate", JSON.stringify(gameState.state));
-              colorfulLog(
-                "Game state updated to 'painting' and broadcasted.",
-                "info",
-                "game"
-              );
+              colorfulLog("Game state updated to 'painting' and broadcasted.", "info", "game");
               gameStartTimer = null;
             }, 10000);
           }
         }
       }
     } catch (e) {
-      colorfulLog(
-        `Error processing playerJoin request: ${e}`,
-        "error",
-        "socket"
-      );
+      colorfulLog(`Error processing playerJoin request: ${e}`, "error", "socket");
       colorfulLog(
         `Invalid playerJoin payload - arg: ${arg}, error: ${e?.message}`,
         "warn",
@@ -280,47 +239,27 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", (reason) => {
-    colorfulLog(
-      `Client ${socket.id} disconnected. Reason: ${reason}`,
-      "info",
-      "connection"
-    );
-    colorfulLog(
-      `Total active connections: ${io.engine.clientsCount}`,
-      "info",
-      "connection"
-    );
+    colorfulLog(`Client ${socket.id} disconnected. Reason: ${reason}`, "info", "connection");
+    colorfulLog(`Total active connections: ${io.engine.clientsCount}`, "info", "connection");
 
-    const disconnectedPlayer = gameState.players.find(
-      (p) => p.socketID === socket.id
-    );
+    const disconnectedPlayer = gameState.players.find((p) => p.socketID === socket.id);
     if (disconnectedPlayer) {
       const playersIndex = gameState.players.indexOf(disconnectedPlayer);
       if (playersIndex !== -1) {
         gameState.players.splice(playersIndex, 1);
       }
       colors.push(disconnectedPlayer.color);
-      colorfulLog(
-        `Disconnected player: ${disconnectedPlayer.nickname}`,
-        "info",
-        "player"
-      );
+      colorfulLog(`Disconnected player: ${disconnectedPlayer.nickname}`, "info", "player");
       io.emit("playerUpdate", JSON.stringify(gameState.players));
       if (gameState.players.length === 0) {
         /* TBD: Reset game state if all players leave */
-        colorfulLog(
-          "All players have left. Game state reset TBD.",
-          "todo",
-          "game"
-        );
+        colorfulLog("All players have left. Game state reset TBD.", "todo", "game");
       }
       if (gameState.players.length < 3 && gameState.state === "waiting") {
-        if (gameStartTimer) clearTimeout(gameStartTimer);
-        colorfulLog(
-          "Not enough players to start the game. Waiting timer cleared.",
-          "info",
-          "game"
-        );
+        if (gameStartTimer) {
+          clearTimeout(gameStartTimer);
+        }
+        colorfulLog("Not enough players to start the game. Waiting timer cleared.", "info", "game");
       }
     }
   });
