@@ -143,6 +143,58 @@ let dotsInterval = setInterval(() => {
   frame = (frame + 1) % frames.length;
 }, 300);
 
+/* Painting & Stuff */
+
+const colorSelector = document.getElementById("colorSelector");
+const paintBucket = document.querySelector(".tool.filled");
+
+const opacitySelector = document.getElementById("opacityRange");
+const brushSizeSelector = document.getElementById("brushSize");
+
+let paintBucketActive = false;
+
+opacitySelector.addEventListener("input", () => {
+  opacitySelector.style.opacity = `${opacitySelector.value}`;
+});
+
+/* Currently not working, needs FIXING */
+brushSizeSelector.addEventListener("input", () => {
+  document.documentElement.style.setProperty("--brush-thumb-size", `${brushSizeSelector.value}px`);
+});
+
+paintBucket.addEventListener("click", () => {
+  paintBucketActive = !paintBucketActive;
+  paintBucket.classList.toggle("filled", paintBucketActive);
+  paintBucket.querySelector("img:nth-of-type(1)").style.display = paintBucketActive
+    ? "none"
+    : "block";
+  paintBucket.querySelector("img:nth-of-type(2)").style.display = paintBucketActive
+    ? "block"
+    : "none";
+});
+
+Coloris({
+  themeMode: "auto",
+  theme: "polaroid",
+  alpha: false,
+  wrap: false,
+  format: "hex",
+  onChange: (color, inputEl) => {
+    colorSelector.value = color;
+    colorSelector.style.backgroundColor = color;
+  },
+  el: colorSelector,
+});
+
+const colors = document.querySelectorAll(".color:not(#colorSelector)");
+colors.forEach((colorButton) => {
+  colorButton.addEventListener("click", () => {
+    const selectedColor = colorButton.value;
+    colorSelector.value = selectedColor;
+    colorSelector.style.backgroundColor = selectedColor;
+  });
+});
+
 fetch("./assets/config.json")
   .then((response) => response.json())
   .then((data) => {
