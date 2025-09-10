@@ -620,31 +620,71 @@ body {
 #opacityRange {
   width: 100%;
   appearance: none;
-  background: #ddd;
-  height: auto;
+  background: #e6e6e6;
+  height: 12px;
   border-radius: 8px;
   outline: none;
   cursor: pointer;
+  border: 2px solid #000;
+  box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.1);
+  margin-top: 6px;
+  margin-bottom: 6px;
+  transition: background 100ms;
 }
 
-/* Thumb sizing doesn't work, needs fixing */
-#brushSize::-webkit-slider-thumb {
+#brushSize:focus,
+#opacityRange:focus {
+  background: #d0ffd0;
+}
+
+#brushSize::-webkit-slider-thumb,
+#opacityRange::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: var(--brush-thumb-size, 20px);
-  height: var(--brush-thumb-size, 20px);
+  appearance: none;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
+  background: #b2fba5;
+  border: 3px solid #000;
+  box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.18);
+  transition: background 100ms;
 }
-#brushSize::-moz-range-thumb {
-  -moz-appearance: none;
-  width: var(--brush-thumb-size, 20px);
-  height: var(--brush-thumb-size, 20px);
-  border-radius: 50%;
+#brushSize:active::-webkit-slider-thumb,
+#opacityRange:active::-webkit-slider-thumb {
+  background: #7aac71;
 }
-#brushSize::-ms-thumb {
-  -ms-appearance: none;
-  width: var(--brush-thumb-size, 20px);
-  height: var(--brush-thumb-size, 20px);
+
+#brushSize::-moz-range-thumb,
+#opacityRange::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
+  background: #b2fba5;
+  border: 3px solid #000;
+  box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.18);
+  transition: background 100ms;
+}
+#brushSize:active::-moz-range-thumb,
+#opacityRange:active::-moz-range-thumb {
+  background: #7aac71;
+}
+
+#brushSize::-webkit-slider-runnable-track,
+#opacityRange::-webkit-slider-runnable-track {
+  height: 12px;
+  border-radius: 8px;
+  background: #e6e6e6;
+  border: 2px solid #000;
+}
+
+#brushSize:focus,
+#opacityRange:focus {
+  outline: none;
+}
+
+#brushSize,
+#opacityRange {
+  scrollbar-width: none;
 }
 
 .clearCanvas {
