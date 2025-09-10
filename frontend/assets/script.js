@@ -153,18 +153,9 @@ const brushSizeSelector = document.getElementById("brushSize");
 
 let paintBucketActive = false;
 
-opacitySelector.addEventListener("input", () => {
-  opacitySelector.style.opacity = `${opacitySelector.value}`;
-});
-
-/* Currently not working, needs FIXING */
-brushSizeSelector.addEventListener("input", () => {
-  document.documentElement.style.setProperty("--brush-thumb-size", `${brushSizeSelector.value}px`);
-});
-
 paintBucket.addEventListener("click", () => {
   paintBucketActive = !paintBucketActive;
-  paintBucket.classList.toggle("filled", paintBucketActive);
+  paintBucket.classList.toggle("selected", paintBucketActive);
   paintBucket.querySelector("img:nth-of-type(1)").style.display = paintBucketActive
     ? "none"
     : "block";
