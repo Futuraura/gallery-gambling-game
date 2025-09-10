@@ -370,8 +370,7 @@ body {
 
 .mainMenuButtonsAndTitle .primaryButton:active {
   transition: all 10ms;
-  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25),
-    inset 2px 2px 5px rgba(0, 0, 0, 0.25);
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25), inset 2px 2px 5px rgba(0, 0, 0, 0.25);
 }
 
 .mainMenuButtonsAndTitle img {
@@ -762,8 +761,7 @@ body {
 
 .bidButton:active {
   transition: all 10ms;
-  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25),
-    inset 2px 2px 5px rgba(0, 0, 0, 0.25);
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25), inset 2px 2px 5px rgba(0, 0, 0, 0.25);
 }
 
 .auctionDiv .rightPart {
@@ -900,8 +898,7 @@ body {
 
 .loanButton:active {
   transition: all 10ms;
-  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25),
-    inset 2px 2px 5px rgba(0, 0, 0, 0.25);
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25), inset 2px 2px 5px rgba(0, 0, 0, 0.25);
 }
 
 /*
@@ -1081,6 +1078,5 @@ body {
 
 .gameoverDialog button:active {
   transition: all 10ms;
-  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25),
-    inset 2px 2px 5px rgba(0, 0, 0, 0.25);
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25), inset 2px 2px 5px rgba(0, 0, 0, 0.25);
 }
