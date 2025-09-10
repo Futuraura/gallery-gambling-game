@@ -468,7 +468,7 @@ body {
   flex: 1 0 0;
   aspect-ratio: 1 / 1;
 
-  border: 2px solid #000;
+  border: 3px solid #000;
   border-radius: 8px;
   cursor: pointer;
   transition: all 100ms;
@@ -576,6 +576,27 @@ body {
   justify-content: center;
   align-items: center;
   padding: 8px;
+  background: #fff;
+  border: 4px solid #000;
+  border-radius: 10px;
+  box-shadow: 4px 4px 2px 0 rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: background 100ms, box-shadow 100ms;
+}
+
+.tool:hover {
+  background: #f0f0f0;
+  box-shadow: 6px 6px 4px 0 rgba(0, 0, 0, 0.22);
+}
+
+.tool:active {
+  background: #e0e0e0;
+  box-shadow: 2px 2px 1px 0 rgba(0, 0, 0, 0.18), inset 2px 2px 5px rgba(0, 0, 0, 0.18);
+}
+
+.tool.selected {
+  background: #b2fba5;
+  box-shadow: 6px 6px 4px 0 rgba(0, 0, 0, 0.22);
 }
 
 .toolSetDivider {
