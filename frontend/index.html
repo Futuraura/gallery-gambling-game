@@ -13,6 +13,7 @@
       type="text/css"
       href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
     />
+    <link rel="stylesheet" href="./assets/coloris/coloris.min.css" />
   </head>
   <body>
     <div id="somethingWentWrongDiv" class="somethingWentWrongDiv">
@@ -171,41 +172,59 @@
           <div class="paintingAndToolset">
             <canvas class="painting"></canvas>
             <div class="toolSet">
-              <div class="colorSet">
-                <button class="color color1"></button>
-                <button class="color color2"></button>
-                <button class="color color3"></button>
-                <button class="color color4"></button>
-                <button class="color color5"></button>
-                <button class="color color6"></button>
-                <button class="color color7"></button>
-                <button class="color color8"></button>
-                <button class="color color9"></button>
-                <button class="color color10"></button>
-                <button class="color color11"></button>
-                <button class="color color12"></button>
-                <button class="color colorSelector"></button>
+              <div class="colorSet" id="colorSet">
+                <button class="color" value="#ff0000" style="background-color: #ff0000"></button>
+                <button class="color" value="#00ff00" style="background-color: #00ff00"></button>
+                <button class="color" value="#0000ff" style="background-color: #0000ff"></button>
+                <button class="color" value="#ffff00" style="background-color: #ffff00"></button>
+                <button class="color" value="#ff00ff" style="background-color: #ff00ff"></button>
+                <button class="color" value="#00ffff" style="background-color: #00ffff"></button>
+                <button class="color" value="#ffffff" style="background-color: #ffffff"></button>
+                <button class="color" value="#000000" style="background-color: #000000"></button>
+                <button class="color" value="#808080" style="background-color: #808080"></button>
+                <button class="color" value="#ff0000" style="background-color: #ff0000"></button>
+                <button class="color" value="#00ff00" style="background-color: #00ff00"></button>
+                <button class="color" value="#0000ff" style="background-color: #0000ff"></button>
+                <button class="color colorSelector" id="colorSelector"></button>
               </div>
+              <hr class="toolSetDivider" />
               <div class="theToolSet">
-                <button class="tool brush"></button>
-                <button class="tool eraser"></button>
-                <button class="tool rectangle"></button>
-                <button class="tool circle"></button>
-                <button class="tool line"></button>
-                <button class="tool clearCanvas"></button>
-                <button class="tool filled"></button>
+                <button class="tool brush">
+                  <img src="./assets/img/brush.svg" alt="" />
+                </button>
+                <button class="tool eraser">
+                  <img src="./assets/img/eraser.svg" alt="" />
+                </button>
+                <button class="tool rectangle">
+                  <img src="./assets/img/rectangle.svg" alt="" />
+                </button>
+                <button class="tool circle">
+                  <img src="./assets/img/circle.svg" alt="" />
+                </button>
+                <button class="tool line">
+                  <img src="./assets/img/line.svg" alt="" />
+                </button>
+                <button class="tool filled">
+                  <img src="./assets/img/non-pouring-paint-bucket.svg" />
+                  <img src="./assets/img/pouring-paint-bucket.svg" style="display: none" />
+                </button>
+                <button class="tool clearCanvas">
+                  <p>Are you sure?</p>
+                  <img src="./assets/img/clear.svg" alt="" />
+                </button>
               </div>
               <div class="opacityAndSize">
-                <label for="brushSize">Size:</label>
+                <label for="brushSize">Brush size</label>
                 <input
                   type="range"
                   id="brushSize"
                   name="brushSize"
-                  min="1"
-                  max="50"
-                  value="5"
+                  min="6"
+                  max="30"
+                  step="2"
+                  value="6"
                 />
-                <label for="opacityRange">Opacity:</label>
+                <label for="opacityRange">Opacity</label>
                 <input
                   type="range"
                   id="opacityRange"
@@ -283,10 +302,8 @@
       integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
       crossorigin="anonymous"
     ></script>
-    <script
-      type="text/javascript"
-      src="https://cdn.jsdelivr.net/npm/toastify-js"
-    ></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="assets/coloris/coloris.min.js"></script>
     <script src="./assets/script.js"></script>
     <script src="./assets/money-background.js"></script>
   </body>
