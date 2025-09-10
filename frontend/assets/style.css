@@ -1,11 +1,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
 
+:root {
+  --brush-thumb-size: 6px;
+}
+
 * {
   user-select: none;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
+
 img {
   object-fit: contain;
 }
@@ -467,6 +472,22 @@ body {
   width: 100%;
   flex: 1 0 0;
   aspect-ratio: 1 / 1;
+
+  border: 2px solid #000;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 100ms;
+  padding: 0;
+}
+
+.color:hover {
+  transition: all 100ms;
+  filter: brightness(85%);
+}
+
+.color:active {
+  transition: all 10ms;
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.25);
 }
 
 .colorSelector {
@@ -474,6 +495,17 @@ body {
   align-self: stretch;
   grid-row: 5 / span 2;
   grid-column: 1 / span 3;
+  aspect-ratio: 3 / 2;
+  height: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.colorSelector::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.colorSelector::-webkit-color-swatch {
+  border: none;
 }
 
 .painting {
@@ -532,7 +564,83 @@ body {
   padding: 15px 30px;
 }
 
-/* HERE */
+.theToolSet {
+  width: 100%;
+  height: auto;
+  display: grid;
+  gap: 10px;
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.tool {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  flex: 1 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+}
+
+.toolSetDivider {
+  width: 100%;
+  border: 2px solid #000;
+}
+
+.tool.filled img {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+}
+
+.opacityAndSize {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#brushSize,
+#opacityRange {
+  width: 100%;
+  appearance: none;
+  background: #ddd;
+  height: auto;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+}
+
+/* Thumb sizing doesn't work, needs fixing */
+#brushSize::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: var(--brush-thumb-size, 20px);
+  height: var(--brush-thumb-size, 20px);
+  border-radius: 50%;
+}
+#brushSize::-moz-range-thumb {
+  -moz-appearance: none;
+  width: var(--brush-thumb-size, 20px);
+  height: var(--brush-thumb-size, 20px);
+  border-radius: 50%;
+}
+#brushSize::-ms-thumb {
+  -ms-appearance: none;
+  width: var(--brush-thumb-size, 20px);
+  height: var(--brush-thumb-size, 20px);
+  border-radius: 50%;
+}
+
+.clearCanvas {
+  grid-row: 4 / span 1;
+  grid-column: 1 / span 2;
+  aspect-ratio: 2 / 1;
+}
+
+.clearCanvas img {
+  height: 100%;
+  aspect-ratio: 1 / 1;
+}
 
 /*
   /$$$$$$                        /$$     /$$                    
