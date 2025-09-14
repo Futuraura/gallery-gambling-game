@@ -158,6 +158,17 @@ function initSocket() {
   });
 }
 
+/*
+ /$$$$$$$$                 /$$        /$$$$$$                      /$$                   /$$           /$$$$$$           /$$   /$$    
+| $$_____/                | $$       /$$__  $$                    | $$                  | $$          |_  $$_/          |__/  | $$    
+| $$       /$$$$$$$   /$$$$$$$      | $$  \__/  /$$$$$$   /$$$$$$$| $$   /$$  /$$$$$$  /$$$$$$          | $$   /$$$$$$$  /$$ /$$$$$$  
+| $$$$$   | $$__  $$ /$$__  $$      |  $$$$$$  /$$__  $$ /$$_____/| $$  /$$/ /$$__  $$|_  $$_/          | $$  | $$__  $$| $$|_  $$_/  
+| $$__/   | $$  \ $$| $$  | $$       \____  $$| $$  \ $$| $$      | $$$$$$/ | $$$$$$$$  | $$            | $$  | $$  \ $$| $$  | $$    
+| $$      | $$  | $$| $$  | $$       /$$  \ $$| $$  | $$| $$      | $$_  $$ | $$_____/  | $$ /$$        | $$  | $$  | $$| $$  | $$ /$$
+| $$$$$$$$| $$  | $$|  $$$$$$$      |  $$$$$$/|  $$$$$$/|  $$$$$$$| $$ \  $$|  $$$$$$$  |  $$$$/       /$$$$$$| $$  | $$| $$  |  $$$$/
+|________/|__/  |__/ \_______/       \______/  \______/  \_______/|__/  \__/ \_______/   \___/        |______/|__/  |__/|__/   \___/  
+*/
+
 const dotsElem = document.getElementById("connectedDots");
 const frames = ["", ".", "..", "..."];
 let frame = 0;
@@ -203,11 +214,162 @@ Coloris({
 const colors = document.querySelectorAll(".color:not(#colorSelector)");
 colors.forEach((colorButton) => {
   colorButton.addEventListener("click", () => {
-    const selectedColor = colorButton.value;
+    selectedColor = colorButton.value;
     colorSelector.value = selectedColor;
     colorSelector.style.backgroundColor = selectedColor;
+    ctx.strokeStyle = selectedTool === "eraser" ? "#ffffff" : selectedColor;
+    ctx.fillStyle = selectedColor;
   });
 });
+
+/* ------------------------------------------------------------------------- */
+/* Painting Logic */
+/* ------------------------------------------------------------------------- */
+
+const setCanvasBackground = () => {
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, paintingCanvas.width, paintingCanvas.height);
+};
+
+window.addEventListener("load", () => {
+  paintingCanvas.width = paintingCanvas.offsetWidth;
+  paintingCanvas.height = paintingCanvas.offsetHeight;
+  setCanvasBackground();
+});
+
+const drawRect = (e) => {
+  ctx.save();
+  ctx.globalAlpha = opacitySelector.value;
+  ctx.lineWidth = brushWidth;
+  ctx.strokeStyle = selectedTool === "eraser" ? "#ffffff" : selectedColor;
+  ctx.fillStyle = selectedColor;
+
+  const width = prevMouseX - e.offsetX;
+  const height = prevMouseY - e.offsetY;
+  if (!paintBucketActive) {
+    ctx.strokeRect(e.offsetX, e.offsetY, width, height);
+  } else {
+    ctx.fillRect(e.offsetX, e.offsetY, width, height);
+  }
+  ctx.restore();
+};
+
+const drawCircle = (e) => {
+  ctx.save();
+  ctx.globalAlpha = opacitySelector.value;
+  ctx.lineWidth = brushWidth;
+  ctx.strokeStyle = selectedTool === "eraser" ? "#ffffff" : selectedColor;
+  ctx.fillStyle = selectedColor;
+
+  ctx.beginPath();
+  let radius = Math.sqrt(Math.pow(prevMouseX - e.offsetX, 2) + Math.pow(prevMouseY - e.offsetY, 2));
+  ctx.arc(prevMouseX, prevMouseY, radius, 0, 2 * Math.PI);
+  paintBucketActive ? ctx.fill() : ctx.stroke();
+  ctx.restore();
+};
+
+const startDraw = (e) => {
+  isDrawing = true;
+  prevMouseX = e.offsetX;
+  prevMouseY = e.offsetY;
+
+  offscreenCanvas.width = paintingCanvas.width;
+  offscreenCanvas.height = paintingCanvas.height;
+  offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+
+  offscreenCtx.lineWidth = brushWidth;
+  offscreenCtx.strokeStyle = selectedTool === "eraser" ? "#ffffff" : selectedColor;
+  offscreenCtx.lineCap = "round";
+  offscreenCtx.lineJoin = "round";
+  offscreenCtx.beginPath();
+  offscreenCtx.moveTo(prevMouseX, prevMouseY);
+
+  snapshot = ctx.getImageData(0, 0, paintingCanvas.width, paintingCanvas.height);
+};
+
+const drawing = (e) => {
+  if (!isDrawing) return;
+
+  if (selectedTool === "brush" || selectedTool === "eraser") {
+    offscreenCtx.strokeStyle = selectedTool === "eraser" ? "#ffffff" : selectedColor;
+    selectedTool === "eraser"
+      ? (offscreenCtx.lineWidth = brushWidth + 10)
+      : (offscreenCtx.lineWidth = brushWidth);
+    offscreenCtx.lineCap = "round";
+    offscreenCtx.lineJoin = "round";
+    offscreenCtx.lineTo(e.offsetX, e.offsetY);
+    offscreenCtx.stroke();
+    prevMouseX = e.offsetX;
+    prevMouseY = e.offsetY;
+
+    ctx.putImageData(snapshot, 0, 0);
+    ctx.globalAlpha = opacitySelector.value;
+    ctx.drawImage(offscreenCanvas, 0, 0);
+    ctx.globalAlpha = 1.0;
+  } else if (selectedTool === "rectangle" || selectedTool === "circle") {
+    ctx.putImageData(snapshot, 0, 0);
+    if (selectedTool === "rectangle") {
+      drawRect(e);
+    } else if (selectedTool === "circle") {
+      drawCircle(e);
+    }
+  }
+};
+
+brushSizeSelector.addEventListener("change", () => {
+  brushWidth = brushSizeSelector.value;
+});
+
+colorSelector.addEventListener("change", () => {
+  selectedColor = colorSelector.value;
+  ctx.strokeStyle = selectedTool === "eraser" ? "#ffffff" : selectedColor;
+  ctx.fillStyle = selectedColor;
+});
+
+paintingCanvas.addEventListener("mousedown", (e) => {
+  selectedTool = document.querySelector(".tool.selectableTool.selected").dataset.tool;
+  startDraw(e);
+  paintingCanvas.addEventListener("mousemove", drawing);
+
+  const stopDraw = (ev) => {
+    if (!isDrawing) return;
+    isDrawing = false;
+    ctx.closePath();
+    paintingCanvas.removeEventListener("mousemove", drawing);
+
+    if (selectedTool === "brush" || selectedTool === "eraser") {
+      ctx.putImageData(snapshot, 0, 0);
+      ctx.globalAlpha = opacitySelector.value;
+      ctx.drawImage(offscreenCanvas, 0, 0);
+      ctx.globalAlpha = 1.0;
+      snapshot = ctx.getImageData(0, 0, paintingCanvas.width, paintingCanvas.height);
+    } else if (selectedTool === "rectangle") {
+      ctx.putImageData(snapshot, 0, 0);
+      drawRect(ev);
+      snapshot = ctx.getImageData(0, 0, paintingCanvas.width, paintingCanvas.height);
+    } else if (selectedTool === "circle") {
+      ctx.putImageData(snapshot, 0, 0);
+      drawCircle(ev);
+      snapshot = ctx.getImageData(0, 0, paintingCanvas.width, paintingCanvas.height);
+    }
+    window.removeEventListener("mouseup", stopDraw);
+  };
+  window.addEventListener("mouseup", stopDraw);
+});
+
+/*
+ /$$$$$$$           /$$             /$$     /$$                           /$$$$$$$$                 /$$
+| $$__  $$         |__/            | $$    |__/                          | $$_____/                | $$
+| $$  \ $$ /$$$$$$  /$$ /$$$$$$$  /$$$$$$   /$$ /$$$$$$$   /$$$$$$       | $$       /$$$$$$$   /$$$$$$$
+| $$$$$$$/|____  $$| $$| $$__  $$|_  $$_/  | $$| $$__  $$ /$$__  $$      | $$$$$   | $$__  $$ /$$__  $$
+| $$____/  /$$$$$$$| $$| $$  \ $$  | $$    | $$| $$  \ $$| $$  \ $$      | $$__/   | $$  \ $$| $$  | $$
+| $$      /$$__  $$| $$| $$  | $$  | $$ /$$| $$| $$  | $$| $$  | $$      | $$      | $$  | $$| $$  | $$
+| $$     |  $$$$$$$| $$| $$  | $$  |  $$$$/| $$| $$  | $$|  $$$$$$$      | $$$$$$$$| $$  | $$|  $$$$$$$
+|__/      \_______/|__/|__/  |__/   \___/  |__/|__/  |__/ \____  $$      |________/|__/  |__/ \_______/
+                                                          /$$  \ $$                                    
+                                                         |  $$$$$$/                                    
+                                                          \______/                                     
+*/
 
 fetch("./assets/config.json")
   .then((response) => response.json())
