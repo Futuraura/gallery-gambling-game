@@ -157,7 +157,7 @@
         </div>
         <div class="rightPart">
           <div class="paintingAndToolset">
-            <canvas class="painting"></canvas>
+            <canvas class="painting" id="paintingCanvas"></canvas>
             <div class="toolSet">
               <div class="colorSet" id="colorSet">
                 <button class="color" value="#ff0000" style="background-color: #ff0000"></button>
@@ -176,26 +176,27 @@
               </div>
               <hr class="toolSetDivider" />
               <div class="theToolSet">
-                <button class="tool brush">
+                <button class="tool brush selectableTool" value="brush" data-tool="brush">
                   <img src="./assets/img/brush.svg" alt="" />
                 </button>
-                <button class="tool eraser">
+                <button class="tool eraser selectableTool" value="eraser" data-tool="eraser">
                   <img src="./assets/img/eraser.svg" alt="" />
                 </button>
-                <button class="tool rectangle">
+                <button
+                  class="tool rectangle selectableTool"
+                  value="rectangle"
+                  data-tool="rectangle"
+                >
                   <img src="./assets/img/rectangle.svg" alt="" />
                 </button>
-                <button class="tool circle">
+                <button class="tool circle selectableTool" value="circle" data-tool="circle">
                   <img src="./assets/img/circle.svg" alt="" />
-                </button>
-                <button class="tool line">
-                  <img src="./assets/img/line.svg" alt="" />
                 </button>
                 <button class="tool filled">
                   <img src="./assets/img/non-pouring-paint-bucket.svg" />
                   <img src="./assets/img/pouring-paint-bucket.svg" style="display: none" />
                 </button>
-                <button class="tool clearCanvas">
+                <button class="tool clearCanvas" id="clearCanvas">
                   <img src="./assets/img/clear.svg" alt="" />
                 </button>
               </div>
@@ -221,6 +222,7 @@
                   value="1"
                 />
               </div>
+              <button class="submitPaintingButton">Submit!</button>
             </div>
           </div>
         </div>
