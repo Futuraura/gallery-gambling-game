@@ -503,6 +503,7 @@ body {
   top: 0;
   left: 0;
   background: rgba(255, 255, 255, 0.8);
+  overflow: hidden;
 }
 
 .mainPaintingScreen {
@@ -511,6 +512,7 @@ body {
   align-self: center;
   height: 100%;
   width: 100%;
+  min-height: 0;
 }
 
 .leftPart {
@@ -522,6 +524,7 @@ body {
   align-items: center;
   flex-direction: column;
   gap: 20px;
+  min-height: 0;
 }
 
 .rightPart {
@@ -533,6 +536,7 @@ body {
   align-items: center;
   flex-direction: column;
   gap: 20px;
+  min-height: 0;
 }
 
 .paintingAndToolset {
@@ -541,11 +545,12 @@ body {
   justify-content: center;
   align-items: center;
   gap: 20px;
+  min-height: 0;
 }
 
 .toolSet {
   display: flex;
-  width: 185px;
+  width: 20%;
   height: 100%;
   padding: 16px;
   flex-direction: column;
@@ -665,10 +670,12 @@ body {
 }
 
 .theToolSet {
+  height: 100%;
   width: 100%;
   height: auto;
   display: grid;
   gap: 10px;
+  justify-content: center;
   grid-template-rows: repeat(3, 1fr);
   grid-template-columns: repeat(2, 1fr);
 }
@@ -718,7 +725,6 @@ body {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
 #brushSize,
