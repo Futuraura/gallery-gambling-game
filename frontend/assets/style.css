@@ -707,8 +707,14 @@ body {
 }
 
 .tool.selected {
-  background: #b2fba5;
+  background: #71ff6c;
   box-shadow: 6px 6px 4px 0 rgba(0, 0, 0, 0.22);
+}
+
+.tool.inactive {
+  background: #a0a0a0;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
 .toolSetDivider {
@@ -798,15 +804,45 @@ body {
   scrollbar-width: none;
 }
 
-.clearCanvas {
-  grid-row: 4 / span 1;
-  grid-column: 1 / span 2;
-  aspect-ratio: 2 / 1;
+.clearCanvas.confirmationRequest {
+  background-color: #f8ff6c;
+}
+
+.clearCanvas.confirmed {
+  background-color: #71ff6c;
 }
 
 .clearCanvas img {
   height: 100%;
   aspect-ratio: 1 / 1;
+  color: #000;
+}
+
+.submitPaintingButton {
+  width: 100%;
+  padding: 6px;
+  border-radius: 12px;
+  border: 5px solid #000;
+  background: #71ff6c;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25);
+  transition: all 100ms;
+  cursor: pointer;
+
+  color: #000;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.submitPaintingButton:hover {
+  transition: all 100ms;
+  background: rgb(122, 172, 113);
+}
+
+.submitPaintingButton:active {
+  transition: all 10ms;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25), inset 2px 2px 5px rgba(0, 0, 0, 0.25);
 }
 
 /*
