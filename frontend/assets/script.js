@@ -177,17 +177,108 @@ let dotsInterval = setInterval(() => {
   frame = (frame + 1) % frames.length;
 }, 300);
 
-/* Painting & Stuff */
+/* 
+ /$$$$$$$           /$$             /$$     /$$                    
+| $$__  $$         |__/            | $$    |__/                    
+| $$  \ $$ /$$$$$$  /$$ /$$$$$$$  /$$$$$$   /$$ /$$$$$$$   /$$$$$$ 
+| $$$$$$$/|____  $$| $$| $$__  $$|_  $$_/  | $$| $$__  $$ /$$__  $$
+| $$____/  /$$$$$$$| $$| $$  \ $$  | $$    | $$| $$  \ $$| $$  \ $$
+| $$      /$$__  $$| $$| $$  | $$  | $$ /$$| $$| $$  | $$| $$  | $$
+| $$     |  $$$$$$$| $$| $$  | $$  |  $$$$/| $$| $$  | $$|  $$$$$$$
+|__/      \_______/|__/|__/  |__/   \___/  |__/|__/  |__/ \____  $$
+                                                          /$$  \ $$
+                                                         |  $$$$$$/
+                                                          \______/ 
+*/
 
 const colorSelector = document.getElementById("colorSelector");
 const paintBucket = document.querySelector(".tool.filled");
 
+const selectableTools = document.querySelectorAll(".selectableTool");
+
 const opacitySelector = document.getElementById("opacityRange");
 const brushSizeSelector = document.getElementById("brushSize");
 
+const clearButton = document.querySelector(".tool.clearCanvas");
+
+const ctx = paintingCanvas.getContext("2d");
+
+let offscreenCanvas = document.createElement("canvas");
+let offscreenCtx = offscreenCanvas.getContext("2d");
+
+let prevMouseX,
+  prevMouseY,
+  snapshot,
+  isDrawing = false,
+  selectedTool = "",
+  selectedColor = "#eaeaea",
+  brushWidth = 10;
+
 let paintBucketActive = false;
 
+function resizeCanvasToDisplaySize(canvas) {
+  const rect = canvas.getBoundingClientRect();
+  if (canvas.width !== Math.round(rect.width) || canvas.height !== Math.round(rect.height)) {
+    canvas.width = Math.round(rect.width);
+    canvas.height = Math.round(rect.height);
+    setCanvasBackground();
+  }
+}
+
+window.addEventListener("resize", () => {
+  if (paintingDiv.style.display !== "none") {
+    resizeCanvasToDisplaySize(paintingCanvas);
+  }
+});
+
+clearButton.addEventListener("click", () => {
+  if (
+    clearButton.classList.contains("confirmationRequest") ||
+    clearButton.classList.contains("confirmed")
+  ) {
+    return;
+  }
+  clearButton.innerHTML = '<img src="./assets/img/questionmark.svg" alt="" />';
+  clearButton.classList.add("confirmationRequest");
+
+  clearButton.onclick = () => {
+    clearButton.classList.remove("confirmationRequest");
+    clearButton.classList.add("confirmed");
+    clearButton.innerHTML = '<img src="./assets/img/checkmark.svg" alt="" />';
+    ctx.clearRect(0, 0, paintingCanvas.width, paintingCanvas.height);
+    setCanvasBackground();
+
+    ctx.strokeStyle = selectedTool === "eraser" ? "#ffffff" : selectedColor;
+    ctx.fillStyle = selectedColor;
+
+    clearButton.onclick = null;
+    setTimeout(() => {
+      clearButton.classList.remove("confirmationRequest");
+      clearButton.classList.remove("confirmed");
+      clearButton.innerText = "";
+      clearButton.innerHTML = '<img src="./assets/img/clear.svg" alt="" />';
+      clearButton.onclick = null;
+      clearButton.onmouseout = null;
+    }, 3000);
+  };
+
+  clearButton.onmouseout = () => {
+    var clearCanvasTimeout = setTimeout(() => {
+      clearButton.innerText = "";
+      clearButton.innerHTML = '<img src="./assets/img/clear.svg" alt="" />';
+      clearButton.classList.remove("confirmationRequest");
+      clearButton.onclick = null;
+      clearButton.onmouseout = null;
+    }, 3000);
+    clearButton.onmouseover = () => {
+      clearTimeout(clearCanvasTimeout);
+    };
+  };
+});
+
 paintBucket.addEventListener("click", () => {
+  if (document.querySelector(".tool.eraser").classList.contains("selected")) return;
+  if (paintBucket.classList.contains("inactive")) return;
   paintBucketActive = !paintBucketActive;
   paintBucket.classList.toggle("selected", paintBucketActive);
   paintBucket.querySelector("img:nth-of-type(1)").style.display = paintBucketActive
@@ -197,6 +288,27 @@ paintBucket.addEventListener("click", () => {
     ? "block"
     : "none";
 });
+
+selectableTools.forEach((tool) => {
+  tool.addEventListener("click", selectTool);
+});
+
+function selectTool() {
+  selectableTools.forEach((tool) => {
+    tool.classList.remove("selected");
+  });
+  selectedTool = this.dataset.tool;
+  this.classList.add("selected");
+  if (this === document.querySelector(".tool.eraser")) {
+    paintBucketActive = false;
+    paintBucket.classList.add("inactive");
+    paintBucket.classList.remove("selected", paintBucketActive);
+    paintBucket.querySelector("img:nth-of-type(1)").style.display = "block";
+    paintBucket.querySelector("img:nth-of-type(2)").style.display = "none";
+  } else {
+    paintBucket.classList.remove("inactive");
+  }
+}
 
 Coloris({
   themeMode: "auto",
