@@ -9,6 +9,8 @@ const paintingDiv = document.getElementById("paintingDiv");
 const mainMenuDiv = document.getElementById("mainMenuDiv");
 const versionNumber = document.getElementById("versionNumber");
 
+const paintingCanvas = document.getElementById("paintingCanvas");
+
 function throwError(code, details) {
   const errorCode = document.getElementById("errorCode");
   const errorDetails = document.getElementById("errorMoreInfo");
@@ -29,7 +31,28 @@ function switchScreen(screen) {
   mainMenuDiv.style.display = "none";
 
   screen.style.display = "flex";
+
+  if (screen === paintingDiv) {
+    paintingCanvas.width = paintingCanvas.offsetWidth;
+    paintingCanvas.height = paintingCanvas.offsetHeight;
+    setCanvasBackground();
+
+    setTimeout(() => {
+      resizeCanvasToDisplaySize(paintingCanvas);
+    }, 0);
+  }
 }
+
+/*
+ /$$$$$$           /$$   /$$                                         /$$                   /$$    
+|_  $$_/          |__/  | $$                                        | $$                  | $$    
+  | $$   /$$$$$$$  /$$ /$$$$$$          /$$$$$$$  /$$$$$$   /$$$$$$$| $$   /$$  /$$$$$$  /$$$$$$  
+  | $$  | $$__  $$| $$|_  $$_/         /$$_____/ /$$__  $$ /$$_____/| $$  /$$/ /$$__  $$|_  $$_/  
+  | $$  | $$  \ $$| $$  | $$          |  $$$$$$ | $$  \ $$| $$      | $$$$$$/ | $$$$$$$$  | $$    
+  | $$  | $$  | $$| $$  | $$ /$$       \____  $$| $$  | $$| $$      | $$_  $$ | $$_____/  | $$ /$$
+ /$$$$$$| $$  | $$| $$  |  $$$$/       /$$$$$$$/|  $$$$$$/|  $$$$$$$| $$ \  $$|  $$$$$$$  |  $$$$/
+|______/|__/  |__/|__/   \___/        |_______/  \______/  \_______/|__/  \__/ \_______/   \___/  
+*/
 
 function initSocket() {
   socket.on("playerUpdate", (data) => {
