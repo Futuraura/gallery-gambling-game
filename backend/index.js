@@ -41,6 +41,62 @@ let gameState = {
   players: [],
 };
 
+/* Painting themes, randomized*/
+
+let paintingThemes = [
+  "Car Dealership",
+  "Juice",
+  "Parking Lot",
+  "Roadmap",
+  "Skateboard",
+  "Party",
+  "Mona Lisa",
+  "Hello World!",
+  "Sunset",
+  "Mountain",
+  "A roll of toilet paper",
+  "Cat",
+  "Dog",
+  "House",
+  "Tree",
+  "Wrist watch",
+  "Bank™ Logo",
+  "A single sock",
+  "A broken pencil",
+  "A spilled drink",
+  "A sandwich cut in half",
+  "A traffic cone",
+  "A shopping cart",
+  "A mailbox",
+  "A slice of watermelon",
+  "A paper airplane",
+  "A pair of sunglasses",
+  "A rubber duck",
+  "A pizza box",
+  "A cactus in a pot",
+  "A snow globe",
+  "A chess piece",
+  "A lightbulb",
+  "A ladder",
+  "A pair of boots",
+  "A kite",
+  "A mug with steam",
+  "A traffic light",
+  "A calendar page",
+  "A doormat",
+  "A slice of cheese",
+  "A paintbrush",
+  "A keychain",
+  "A sticky note",
+  "A remote control",
+  "A pillow",
+  "A goldfish bowl",
+  "A bar of soap",
+]
+  .map((a) => ({ sort: Math.random(), value: a }))
+  .sort((a, b) => a.sort - b.sort)
+  .map((a) => a.value);
+
 class Player {
   socketID;
   nickname;
