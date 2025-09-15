@@ -220,13 +220,21 @@ io.on("connection", (socket) => {
 
   socket.on("playerJoin", (arg, callback) => {
     colorfulLog(`Received playerJoin request: ${arg}`, "info", "socket");
+
+    /*  Вот такой вот неприятный костыль пока не придумаю норм механику захода. */
+    if (gameState.state !== "waiting") {
+      colorfulLog("Game already in progress. Rejecting new player.", "warn", "game");
+      callback(JSON.stringify({ success: false, reason: "Game already in progress." }));
+      return;
+    }
+
     try {
       let argObject = JSON.parse(arg);
       colorfulLog(`Parsed playerJoin object:`, "info", "socket", argObject);
 
       /* Running some validations for the player nickname */
 
-      if (argObject.playerName === "test") {
+      if (argObject.playerName === "admin") {
         colorfulLog(
           `Rejecting player ${argObject.playerName} - test name not allowed`,
           "warn",
