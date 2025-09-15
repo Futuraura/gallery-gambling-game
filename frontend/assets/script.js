@@ -502,6 +502,23 @@ paintingCanvas.addEventListener("mousedown", (e) => {
   window.addEventListener("mouseup", stopDraw);
 });
 
+const submitPaintingButton = document.getElementById("submitPaintingButton");
+
+submitPaintingButton.addEventListener("click", () => {
+  const paintingDataURL = paintingCanvas.toDataURL("image/png");
+  socket.emit("submitPainting", JSON.stringify({ image: paintingDataURL }), (res) => {
+    let resObject = JSON.parse(res);
+    if (resObject.success) {
+      Toastify({
+        text: "Painting submitted successfully!",
+        duration: 3000,
+        gravity: "bottom",
+        position: "right",
+      }).showToast();
+    }
+  });
+});
+
 /*
  /$$$$$$$           /$$             /$$     /$$                           /$$$$$$$$                 /$$
 | $$__  $$         |__/            | $$    |__/                          | $$_____/                | $$
