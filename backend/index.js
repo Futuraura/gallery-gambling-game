@@ -113,7 +113,13 @@ class Player {
 
     this.balance = 3000;
     this.loans = 0;
-    this.paintings = 0;
+    this.paintings = [
+      {
+        price: 0,
+        prompt: "",
+        base64: "",
+      },
+    ];
     this.getPlayerInfo();
   }
 
