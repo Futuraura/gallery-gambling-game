@@ -130,6 +130,11 @@ function initSocket() {
     });
   });
 
+  socket.on("startTimer", (data) => {
+    let obj = JSON.parse(data);
+    startPaintingTimer(obj.endTime);
+  });
+
   socket.on("disconnect", () => {
     throwError("0x001", "Disconnected from server.");
   });
@@ -215,6 +220,34 @@ let prevMouseX,
   brushWidth = 10;
 
 let paintBucketActive = false;
+
+function startPaintingTimer(endTime) {
+  const paintingTimer = document.getElementById("paintingTimer");
+  if (!paintingTimer) return;
+
+  if (window.paintingTimerInterval) {
+    clearInterval(window.paintingTimerInterval);
+  }
+
+  window.paintingTimerInterval = setInterval(() => {
+    const now = Date.now();
+    const diff = endTime - now;
+
+    if (diff <= 0) {
+      paintingTimer.innerText = "00:00:00";
+      clearInterval(window.paintingTimerInterval);
+      return;
+    }
+
+    const minutes = Math.floor(diff / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    const milliseconds = Math.floor((diff % 1000) / 10);
+    paintingTimer.innerText = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
+      2,
+      "0"
+    )}:${String(milliseconds).padStart(2, "0")}`;
+  }, 10);
+}
 
 function resizeCanvasToDisplaySize(canvas) {
   const rect = canvas.getBoundingClientRect();

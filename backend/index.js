@@ -131,6 +131,12 @@ io.on("connection", (socket) => {
                 })
               ); */
             }
+            break;
+          case "startTimer":
+            const date = new Date(Date.now());
+            date.setMinutes(date.getMinutes() + 1);
+            date.setSeconds(date.getSeconds() + 30);
+            io.emit("startTimer", JSON.stringify({ endTime: date.getTime() }));
         }
       } else {
         colorfulLog("Admin password incorrect", "warn", "admin");
