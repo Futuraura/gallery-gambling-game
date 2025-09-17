@@ -373,6 +373,42 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("submitPainting", (arg, callback) => {
+    colorfulLog(`Received submitPainting request`, "info", "socket");
+    /* Example submitPainting structure:
+    {
+      id: 1,
+      base64: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAYAAAC0..."
+    }
+    */
+    try {
+      let argObject = JSON.parse(arg);
+      colorfulLog(`Parsed submitPainting object:`, "info", "socket", argObject);
+      let painting = gameState.artwork.find((a) => a.id === argObject.id);
+      if (painting) {
+        if (painting.artist === socket.id) {
+          painting.base64 = argObject.base64;
+          colorfulLog(`Painting ${argObject.id} submitted by player ${socket.id}`, "info", "game");
+          callback(JSON.stringify({ success: true }));
+        } else {
+          colorfulLog(
+            `Player ${socket.id} attempted to submit painting ${argObject.id} they do not own`,
+            "warn",
+            "game"
+          );
+          callback(JSON.stringify({ success: false, reason: "You do not own this painting." }));
+        }
+      }
+    } catch (e) {
+      colorfulLog(`Error processing submitPainting request: ${e}`, "error", "socket");
+      colorfulLog(
+        `Invalid submitPainting payload - arg: ${arg}, error: ${e?.message}`,
+        "warn",
+        "socket"
+      );
+    }
+  });
+
   socket.on("disconnect", (reason) => {
     colorfulLog(`Client ${socket.id} disconnected. Reason: ${reason}`, "info", "connection");
     colorfulLog(`Total active connections: ${io.engine.clientsCount}`, "info", "connection");
