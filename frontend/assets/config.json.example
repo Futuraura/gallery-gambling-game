@@ -1,0 +1,4 @@
+{
+  "backendIP": "http://localhost:3001",
+  "devMode": false
+}
