@@ -9,7 +9,15 @@ const paintingDiv = document.getElementById("paintingDiv");
 const mainMenuDiv = document.getElementById("mainMenuDiv");
 const versionNumber = document.getElementById("versionNumber");
 
+const promptElement = document.getElementById("currentPrompt");
+const promptCounter = document.getElementById("currentPromptIndex");
+
 const paintingCanvas = document.getElementById("paintingCanvas");
+
+let gameState = {
+  paintingPrompts: [],
+  promptsSubmitted: 0,
+};
 
 function throwError(code, details) {
   const errorCode = document.getElementById("errorCode");
@@ -71,6 +79,18 @@ function startTimer(endTime, timerElement) {
       "0"
     )}:${String(milliseconds).padStart(2, "0")}`;
   }, 10);
+}
+
+function cancelTimer(timerElement) {
+  if (timerElement && timerElement._interval) {
+    clearInterval(timerElement._interval);
+    timerElement.innerText = "00:00:00";
+  }
+}
+
+function displayCurrentPrompt() {
+  promptElement.innerText = gameState.paintingPrompts[gameState.promptsSubmitted].prompt;
+  promptCounter.innerText = gameState.promptsSubmitted + 1;
 }
 
 /*
