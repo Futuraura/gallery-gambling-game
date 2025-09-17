@@ -363,7 +363,19 @@ body {
   line-height: normal;
 }
 
-/* Waiting for players screen */
+/*
+ /$$      /$$           /$$   /$$     /$$                    
+| $$  /$ | $$          |__/  | $$    |__/                    
+| $$ /$$$| $$  /$$$$$$  /$$ /$$$$$$   /$$ /$$$$$$$   /$$$$$$ 
+| $$/$$ $$ $$ |____  $$| $$|_  $$_/  | $$| $$__  $$ /$$__  $$
+| $$$$_  $$$$  /$$$$$$$| $$  | $$    | $$| $$  \ $$| $$  \ $$
+| $$$/ \  $$$ /$$__  $$| $$  | $$ /$$| $$| $$  | $$| $$  | $$
+| $$/   \  $$|  $$$$$$$| $$  |  $$$$/| $$| $$  | $$|  $$$$$$$
+|__/     \__/ \_______/|__/   \___/  |__/|__/  |__/ \____  $$
+                                                    /$$  \ $$
+                                                   |  $$$$$$/
+                                                    \______/ 
+*/
 
 .waitingScreenDiv {
   display: none;
@@ -389,6 +401,38 @@ body {
   font-weight: 500;
   line-height: normal;
   text-align: center;
+}
+
+.flyOutDiv {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  gap: 40px;
+
+  z-index: 1001;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.flyOutCountdown {
+  color: #000;
+  font-size: 48px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  text-align: center;
+
+  background: #b2fba5;
+  border: 8px solid #000;
+  border-radius: 12px;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.25);
+  padding: 20px 40px;
 }
 
 /*

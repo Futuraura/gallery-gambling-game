@@ -287,13 +287,18 @@ io.on("connection", (socket) => {
           callback(JSON.stringify({ success: true }));
           io.emit("playerUpdate", JSON.stringify(gameState.players));
           socket.emit("gameStateUpdate", JSON.stringify(gameState.state));
-          if (gameState.players.length >= 3) {
+          if (gameState.players.length === 3) {
             colorfulLog("Minimum players reached. Starting game...", "info", "game");
 
             /* TBD: Make this into a ticking timer on user's screen and make the game begin properly */
             gameStartTimer = setTimeout(() => {
               gameState.state = "painting";
               io.emit("gameStateUpdate", JSON.stringify(gameState.state));
+              {
+                const date = new Date(Date.now());
+                date.setSeconds(date.getSeconds() + 10);
+                io.emit("startPaintingTimer", JSON.stringify({ endTime: date.getTime() }));
+              }
               colorfulLog("Game state updated to 'painting' and broadcasted.", "info", "game");
               gameStartTimer = null;
             }, 10000);

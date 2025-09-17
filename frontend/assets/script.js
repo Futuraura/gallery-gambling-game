@@ -160,9 +160,21 @@ function initSocket() {
     });
   });
 
-  socket.on("startTimer", (data) => {
+  socket.on("startGameStartCountdown", (data) => {
     let obj = JSON.parse(data);
-    startPaintingTimer(obj.endTime);
+    let flyOutDiv = document.getElementById("flyOutDiv");
+    flyOutDiv.style.display = "flex";
+    startTimer(obj.endTime, document.getElementById("gameStartCountdown"));
+  });
+
+  socket.on("cancelGameStartCountdown", () => {
+    clearTimeout(gameStartCountdown);
+    document.getElementById("flyOutDiv").style.display = "none";
+  });
+
+  socket.on("startPaintingTimer", (data) => {
+    let obj = JSON.parse(data);
+    startTimer(obj.endTime, document.getElementById("paintingTimer"));
   });
 
   socket.on("disconnect", () => {
