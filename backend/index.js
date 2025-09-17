@@ -311,14 +311,48 @@ io.on("connection", (socket) => {
             colorfulLog("Minimum players reached. Starting game...", "info", "game");
 
             /* TBD: Make this into a ticking timer on user's screen and make the game begin properly */
+            {
+              const date = new Date(Date.now());
+              date.setSeconds(date.getSeconds() + 10);
+              io.emit("startGameStartCountdown", JSON.stringify({ endTime: date.getTime() }));
+            }
             gameStartTimer = setTimeout(() => {
               gameState.state = "painting";
               io.emit("gameStateUpdate", JSON.stringify(gameState.state));
-              {
-                const date = new Date(Date.now());
-                date.setSeconds(date.getSeconds() + 10);
-                io.emit("startPaintingTimer", JSON.stringify({ endTime: date.getTime() }));
-              }
+              io.emit("cancelGameStartCountdown");
+              gameState.players.forEach((player) => {
+                const playerSocket = io.sockets.sockets.get(player.socketID);
+                if (playerSocket) {
+                  const paintingObjectsToBeSent = [];
+
+                  for (let i = 1; i <= 2; i++) {
+                    /* Later the socket can be used to check whether the player is that exact player or it's a fake */
+
+                    let paintingObject = {
+                      id: gameState.artwork.length + 1,
+                      artist: player.socketID,
+                      prompt: paintingThemes.pop(),
+                      price: Math.round((Math.random() * 5000) / 100) * 100,
+                      base64: "",
+                    };
+
+                    if (paintingObject.price <= 300) paintingObject.price = 400;
+
+                    gameState.artwork.push(paintingObject);
+
+                    paintingObjectsToBeSent.push({
+                      id: paintingObject.id,
+                      prompt: paintingObject.prompt,
+                    });
+                  }
+
+                  playerSocket.emit(
+                    "updatePaintingPrompts",
+                    JSON.stringify(paintingObjectsToBeSent)
+                  );
+                }
+              });
+              io.emit("startPaintingTimer", JSON.stringify({ endTime: Date.now() + 90000 }));
               colorfulLog("Game state updated to 'painting' and broadcasted.", "info", "game");
               gameStartTimer = null;
             }, 10000);
