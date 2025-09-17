@@ -333,8 +333,11 @@ io.on("connection", (socket) => {
       colorfulLog(`Disconnected player: ${disconnectedPlayer.nickname}`, "info", "player");
       io.emit("playerUpdate", JSON.stringify(gameState.players));
       if (gameState.players.length === 0) {
-        /* TBD: Reset game state if all players leave */
-        colorfulLog("All players have left. Game state reset TBD.", "todo", "game");
+        colorfulLog("All players have left. Exiting the game.", "todo", "game");
+
+        /* UNCOMMENT ONCE OUT OF TESTING */
+
+        // exit(0);
       }
       if (gameState.players.length < 3 && gameState.state === "waiting") {
         if (gameStartTimer) {
