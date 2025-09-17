@@ -119,6 +119,8 @@ function initSocket() {
         switchScreen(waitingScreenDiv);
         break;
       case "painting":
+        let flyOutDiv = document.getElementById("flyOutDiv");
+        flyOutDiv.style.display = "none";
         switchScreen(paintingDiv);
         break;
       case "auction":
