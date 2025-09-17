@@ -43,6 +43,36 @@ function switchScreen(screen) {
   }
 }
 
+function startTimer(endTime, timerElement) {
+  if (!timerElement) {
+    console.error("Timer element not found");
+    return;
+  }
+
+  if (timerElement._interval) {
+    clearInterval(timerElement._interval);
+  }
+
+  timerElement._interval = setInterval(() => {
+    const now = Date.now();
+    const diff = endTime - now;
+
+    if (diff <= 0) {
+      timerElement.innerText = "00:00:00";
+      clearInterval(timerElement._interval);
+      return;
+    }
+
+    const minutes = Math.floor(diff / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    const milliseconds = Math.floor((diff % 1000) / 10);
+    timerElement.innerText = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
+      2,
+      "0"
+    )}:${String(milliseconds).padStart(2, "0")}`;
+  }, 10);
+}
+
 /*
  /$$$$$$           /$$   /$$                                         /$$                   /$$    
 |_  $$_/          |__/  | $$                                        | $$                  | $$    
@@ -220,34 +250,6 @@ let prevMouseX,
   brushWidth = 10;
 
 let paintBucketActive = false;
-
-function startPaintingTimer(endTime) {
-  const paintingTimer = document.getElementById("paintingTimer");
-  if (!paintingTimer) return;
-
-  if (window.paintingTimerInterval) {
-    clearInterval(window.paintingTimerInterval);
-  }
-
-  window.paintingTimerInterval = setInterval(() => {
-    const now = Date.now();
-    const diff = endTime - now;
-
-    if (diff <= 0) {
-      paintingTimer.innerText = "00:00:00";
-      clearInterval(window.paintingTimerInterval);
-      return;
-    }
-
-    const minutes = Math.floor(diff / 60000);
-    const seconds = Math.floor((diff % 60000) / 1000);
-    const milliseconds = Math.floor((diff % 1000) / 10);
-    paintingTimer.innerText = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
-      2,
-      "0"
-    )}:${String(milliseconds).padStart(2, "0")}`;
-  }, 10);
-}
 
 function resizeCanvasToDisplaySize(canvas) {
   const rect = canvas.getBoundingClientRect();
