@@ -131,7 +131,6 @@ class Player {
 
   balance;
   loans;
-  paintings;
 
   constructor(socketID, nickname) {
     this.socketID = socketID;
