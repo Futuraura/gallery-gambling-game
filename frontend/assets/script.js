@@ -485,9 +485,7 @@ const drawing = (e) => {
 
   if (selectedTool === "brush" || selectedTool === "eraser") {
     offscreenCtx.strokeStyle = selectedTool === "eraser" ? "#ffffff" : selectedColor;
-    selectedTool === "eraser"
-      ? (offscreenCtx.lineWidth = brushWidth + 10)
-      : (offscreenCtx.lineWidth = brushWidth);
+    offscreenCtx.lineWidth = brushWidth;
     offscreenCtx.lineCap = "round";
     offscreenCtx.lineJoin = "round";
     offscreenCtx.lineTo(e.offsetX, e.offsetY);
