@@ -371,38 +371,54 @@ io.on("connection", (socket) => {
         "warn",
         "socket"
       );
-      if (typeof callback === "function") {
-        colorfulLog("Sending error response to client", "info", "socket");
-        callback(JSON.stringify({ success: false, reason: "Invalid payload" }));
-      }
     }
   });
 
   socket.on("submitPainting", (arg, callback) => {
     colorfulLog(`Received submitPainting request`, "info", "socket");
-    /* Example submitPainting structure:
-    {
-      id: 1,
-      base64: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAYAAAC0..."
+
+    if (gameState.state !== "painting") {
+      callback(JSON.stringify({ success: false, reason: "Not in painting phase." }));
+      return;
     }
-    */
+
+    /* Example submitPainting structure:
+  {
+    id: 1,
+    base64: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAYAAAC0..."
+  }
+  */
     try {
       let argObject = JSON.parse(arg);
       colorfulLog(`Parsed submitPainting object:`, "info", "socket", argObject);
+
+      // Validate base64 data
+      if (!argObject.base64 || typeof argObject.base64 !== "string") {
+        callback(JSON.stringify({ success: false, reason: "Invalid image data." }));
+        return;
+      }
+
+      // Limit base64 size (e.g., 5MB)
+      const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+      if (argObject.base64.length > MAX_IMAGE_SIZE) {
+        callback(JSON.stringify({ success: false, reason: "Image too large." }));
+        return;
+      }
+
       let painting = gameState.artwork.find((a) => a.id === argObject.id);
-      if (painting) {
-        if (painting.artist === socket.id) {
-          painting.base64 = argObject.base64;
-          colorfulLog(`Painting ${argObject.id} submitted by player ${socket.id}`, "info", "game");
-          callback(JSON.stringify({ success: true }));
-        } else {
-          colorfulLog(
-            `Player ${socket.id} attempted to submit painting ${argObject.id} they do not own`,
-            "warn",
-            "game"
-          );
-          callback(JSON.stringify({ success: false, reason: "You do not own this painting." }));
-        }
+      if (!painting) {
+        callback(JSON.stringify({ success: false, reason: "Painting not found." }));
+      } else if (painting.artist === socket.id) {
+        painting.base64 = argObject.base64;
+        colorfulLog(`Painting ${argObject.id} submitted by player ${socket.id}`, "info", "game");
+        callback(JSON.stringify({ success: true }));
+      } else {
+        colorfulLog(
+          `Player ${socket.id} attempted to submit painting ${argObject.id} they do not own`,
+          "warn",
+          "game"
+        );
+        callback(JSON.stringify({ success: false, reason: "You do not own this painting." }));
       }
     } catch (e) {
       colorfulLog(`Error processing submitPainting request: ${e}`, "error", "socket");
@@ -411,6 +427,9 @@ io.on("connection", (socket) => {
         "warn",
         "socket"
       );
+      if (typeof callback === "function") {
+        callback(JSON.stringify({ success: false, reason: "Invalid payload" }));
+      }
     }
   });
 
