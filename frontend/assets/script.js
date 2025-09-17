@@ -552,17 +552,42 @@ const submitPaintingButton = document.getElementById("submitPaintingButton");
 
 submitPaintingButton.addEventListener("click", () => {
   const paintingDataURL = paintingCanvas.toDataURL("image/png");
-  socket.emit("submitPainting", JSON.stringify({ image: paintingDataURL }), (res) => {
-    let resObject = JSON.parse(res);
-    if (resObject.success) {
-      Toastify({
-        text: "Painting submitted successfully!",
-        duration: 3000,
-        gravity: "bottom",
-        position: "right",
-      }).showToast();
+  socket.emit(
+    "submitPainting",
+    JSON.stringify({
+      id: gameState.paintingPrompts[gameState.promptsSubmitted].id,
+      base64: paintingDataURL,
+    }),
+    (res) => {
+      let resObject = JSON.parse(res);
+      if (resObject.success) {
+        Toastify({
+          text: "Painting submitted successfully!",
+          duration: 3000,
+          gravity: "bottom",
+          position: "right",
+        }).showToast();
+        gameState.promptsSubmitted += 1;
+        if (gameState.promptsSubmitted < gameState.paintingPrompts.length) {
+          displayCurrentPrompt();
+          ctx.clearRect(0, 0, paintingCanvas.width, paintingCanvas.height);
+          setCanvasBackground();
+          snapshot = ctx.getImageData(0, 0, paintingCanvas.width, paintingCanvas.height);
+        } else {
+          submitPaintingButton.disabled = true;
+          promptElement.innerText = "All paintings submitted!";
+          promptCounter.innerText = gameState.promptsSubmitted + 1;
+        }
+      } else {
+        Toastify({
+          text: "Failed to submit painting. Please try again.",
+          duration: 3000,
+          gravity: "bottom",
+          position: "right",
+        }).showToast();
+      }
     }
-  });
+  );
 });
 
 /*
