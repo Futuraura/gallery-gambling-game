@@ -140,19 +140,12 @@ class Player {
 
     this.balance = 3000;
     this.loans = 0;
-    this.paintings = [
-      {
-        price: 0,
-        prompt: "",
-        base64: "",
-      },
-    ];
     this.getPlayerInfo();
   }
 
   getPlayerInfo() {
     colorfulLog(
-      `Player info: SocketID: ${this.socketID}, Nickname: ${this.nickname}, Color: ${this.color}, Balance: ${this.balance}, Loans: ${this.loans}, Paintings: ${this.paintings}`,
+      `Player info: SocketID: ${this.socketID}, Nickname: ${this.nickname}, Color: ${this.color}, Balance: ${this.balance}, Loans: ${this.loans}`,
       "info",
       "player"
     );
