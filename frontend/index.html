@@ -36,14 +36,14 @@
     <div class="waitingScreenDiv" id="waitingScreenDiv">
       <p class="waitingText">Waiting for other players<span id="connectedDots"></span></p>
       <p class="waitingText">
-        Currently <span id="connectedPlayersCount">0</span> players connected
+        Currently <span id="connectedPlayersCount"></span> players connected
       </p>
     </div>
 
     <div class="flyOutDiv" id="flyOutDiv">
       <div class="flyOutCountdown" id="flyOutCountdown">
         <p>Game starting in</p>
-        <p id="gameStartCountdown">00:00:00</p>
+        <p id="gameStartCountdown"></p>
       </div>
     </div>
 
@@ -121,45 +121,16 @@
           </div>
         </div>
       </div>
-      <div class="playerList" id="playerListAuction">
-        <div class="player">
-          <p class="playerNickname">Jestanka1</p>
-          <img src="./assets/img/player.svg" id="player1" />
-        </div>
-        <div class="player">
-          <p class="playerNickname">Jestanka1</p>
-          <img src="./assets/img/player.svg" />
-        </div>
-        <div class="player">
-          <p class="playerNickname">Jestanka1</p>
-          <img src="./assets/img/player.svg" />
-        </div>
-        <div class="player">
-          <p class="playerNickname">Jestanka1</p>
-          <img src="./assets/img/player.svg" />
-        </div>
-        <div class="player">
-          <p class="playerNickname">Jestanka1</p>
-          <img src="./assets/img/player.svg" />
-        </div>
-        <div class="player">
-          <p class="playerNickname">Jestanka1</p>
-          <img src="./assets/img/player.svg" />
-        </div>
-        <div class="player">
-          <p class="playerNickname">Jestanka1</p>
-          <img src="./assets/img/player.svg" />
-        </div>
-      </div>
+      <div class="playerList" id="playerListAuction"></div>
     </div>
 
     <div class="paintingDiv" id="paintingDiv">
       <div class="mainPaintingScreen">
         <div class="leftPart">
-          <p class="timer" id="paintingTimer">01:30:55</p>
+          <p class="timer" id="paintingTimer"></p>
           <div class="drawingTheme">
-            <p>(1/2) Draw:</p>
-            <p>A duck</p>
+            <p>(<span id="currentPromptIndex"></span>/2) Draw:</p>
+            <p id="currentPrompt"></p>
           </div>
         </div>
         <div class="rightPart">
@@ -234,36 +205,7 @@
           </div>
         </div>
       </div>
-      <div class="playerList" id="playerListPainting">
-        <div class="player">
-          <p class="playerNickname">Jestanka1</p>
-          <img src="./assets/img/player.svg" />
-        </div>
-        <div class="player">
-          <p class="playerNickname">Jestanka1</p>
-          <img src="./assets/img/player.svg" />
-        </div>
-        <div class="player">
-          <p class="playerNickname">Jestanka1</p>
-          <img src="./assets/img/player.svg" />
-        </div>
-        <div class="player">
-          <p class="playerNickname">Jestanka1</p>
-          <img src="./assets/img/player.svg" />
-        </div>
-        <div class="player">
-          <p class="playerNickname">Jestanka1</p>
-          <img src="./assets/img/player.svg" />
-        </div>
-        <div class="player">
-          <p class="playerNickname">Jestanka1</p>
-          <img src="./assets/img/player.svg" />
-        </div>
-        <div class="player">
-          <p class="playerNickname">Jestanka1</p>
-          <img src="./assets/img/player.svg" />
-        </div>
-      </div>
+      <div class="playerList" id="playerListPainting"></div>
     </div>
 
     <div class="mainMenuDiv" id="mainMenuDiv">
