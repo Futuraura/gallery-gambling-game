@@ -139,8 +139,8 @@ function initSocket() {
   });
 
   socket.on("gameStateUpdate", (data) => {
-    let gameState = JSON.parse(data);
-    switch (gameState) {
+    let newState = JSON.parse(data);
+    switch (newState) {
       case "waiting":
         switchScreen(waitingScreenDiv);
         break;
@@ -159,7 +159,7 @@ function initSocket() {
         switchScreen(endScreen);
         break;
       default:
-        console.error("Unknown game state:", gameState);
+        console.error("Unknown game state:", newState);
     }
   });
 
