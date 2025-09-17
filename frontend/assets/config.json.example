@@ -1,4 +1,7 @@
+
 {
+  "_comment": "The IP must be in format http://<the backend server IP> : <backend port>",
   "backendIP": "http://localhost:3001",
+  "_devModeComment": "You can enable or disable the devMode how you like, this will enable/disable the devMode features",
   "devMode": false
 }
