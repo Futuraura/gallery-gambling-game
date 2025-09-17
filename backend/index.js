@@ -351,7 +351,6 @@ io.on("connection", (socket) => {
                       prompt: paintingObject.prompt,
                     });
                   }
-
                   playerSocket.emit(
                     "updatePaintingPrompts",
                     JSON.stringify(paintingObjectsToBeSent)
