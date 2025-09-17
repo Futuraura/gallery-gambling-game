@@ -84,7 +84,13 @@ function startTimer(endTime, timerElement) {
 |______/|__/  |__/|__/   \___/        |_______/  \______/  \_______/|__/  \__/ \_______/   \___/  
 */
 
+/* TODO:
+- Add error catching for if the JSON is invalid. Wrap the JSON.parse in a try catch block.
+- Add exact array/object/string checking to esnure that the data is valid.
+*/
+
 function initSocket() {
+  /* TODO: Refactor this to create one line with player list, not add a div for each one separately. */
   socket.on("playerUpdate", (data) => {
     let players = JSON.parse(data);
     const playerListAuction = document.getElementById("playerListAuction");

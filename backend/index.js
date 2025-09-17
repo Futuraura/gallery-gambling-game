@@ -3,6 +3,33 @@ import dotenv from "dotenv";
 import { createServer } from "http";
 import bcrypt from "bcrypt";
 
+/* TODO:
+- Refactor the whole shit to support multiple rooms
+Maybe databases would be nice?
+
+- Add input sanitization, EVERYWHERE.
+- Remove the Hash from the files.
+- Implement rate limiting for incoming connections.
+- Consider using a logging library instead of making a whole function for that.
+
+- Split the whole shit into different files for easier management.
+Maybe redo everything in an MVC or a service-based structure.
+backend/
+  ├── app.js
+  ├── server.js
+  ├── sockets/
+  │     ├── game.js
+  │     └── admin.js
+  ├── models/
+  │     └── player.js
+  ├── utils/
+  │     └── logger.js
+  └── config/
+        └── index.js
+
+- Add the ascii art category names that are present in frontend for easier finding of everything.
+*/
+
 let gameStartTimer = null;
 
 function colorfulLog(message, mode = "info", department = "general") {
