@@ -205,6 +205,12 @@ function initSocket() {
     startTimer(obj.endTime, document.getElementById("paintingTimer"));
   });
 
+  socket.on("updatePaintingPrompts", (data) => {
+    let obj = JSON.parse(data);
+    gameState.paintingPrompts = obj;
+    displayCurrentPrompt();
+  });
+
   socket.on("disconnect", () => {
     throwError("0x001", "Disconnected from server.");
   });
