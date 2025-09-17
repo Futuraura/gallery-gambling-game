@@ -327,15 +327,22 @@ io.on("connection", (socket) => {
                   for (let i = 1; i <= 2; i++) {
                     /* Later the socket can be used to check whether the player is that exact player or it's a fake */
 
+                    // Ensure themes are available
+                    if (paintingThemes.length === 0) {
+                      colorfulLog("No painting themes remaining!", "error", "game");
+                      break;
+                    }
+
                     let paintingObject = {
                       id: gameState.artwork.length + 1,
                       artist: player.socketID,
-                      prompt: paintingThemes.pop(),
+                      prompt: paintingThemes.pop(), // Consider using a copy or resetting themes
                       price: Math.round((Math.random() * 5000) / 100) * 100,
                       base64: "",
                     };
 
-                    if (paintingObject.price <= 300) paintingObject.price = 400;
+                    // Ensure minimum price of 400
+                    paintingObject.price = Math.max(400, paintingObject.price);
 
                     gameState.artwork.push(paintingObject);
 
