@@ -41,13 +41,7 @@ function switchScreen(screen) {
   screen.style.display = "flex";
 
   if (screen === paintingDiv) {
-    paintingCanvas.width = paintingCanvas.offsetWidth;
-    paintingCanvas.height = paintingCanvas.offsetHeight;
     setCanvasBackground();
-
-    setTimeout(() => {
-      resizeCanvasToDisplaySize(paintingCanvas);
-    }, 0);
   }
 }
 
@@ -284,6 +278,9 @@ const clearButton = document.querySelector(".tool.clearCanvas");
 
 const ctx = paintingCanvas.getContext("2d");
 
+paintingCanvas.width = 600;
+paintingCanvas.height = 750;
+
 let offscreenCanvas = document.createElement("canvas");
 let offscreenCtx = offscreenCanvas.getContext("2d");
 
@@ -296,21 +293,6 @@ let prevMouseX,
   brushWidth = 10;
 
 let paintBucketActive = false;
-
-function resizeCanvasToDisplaySize(canvas) {
-  const rect = canvas.getBoundingClientRect();
-  if (canvas.width !== Math.round(rect.width) || canvas.height !== Math.round(rect.height)) {
-    canvas.width = Math.round(rect.width);
-    canvas.height = Math.round(rect.height);
-    setCanvasBackground();
-  }
-}
-
-window.addEventListener("resize", () => {
-  if (paintingDiv.style.display !== "none") {
-    resizeCanvasToDisplaySize(paintingCanvas);
-  }
-});
 
 clearButton.addEventListener("click", () => {
   if (
