@@ -280,21 +280,14 @@ io.on("connection", (socket) => {
                   for (let i = 1; i <= 2; i++) {
                     /* Later the socket can be used to check whether the player is that exact player or it's a fake */
 
-                    // Ensure themes are available
-                    if (paintingThemes.length === 0) {
-                      colorfulLog("No painting themes remaining!", "error", "game");
-                      break;
-                    }
-
                     let paintingObject = {
                       id: gameState.artwork.length + 1,
                       artist: player.socketID,
-                      prompt: paintingThemes.pop(), // Consider using a copy or resetting themes
+                      prompt: paintingThemes.pop(),
                       price: Math.round((Math.random() * 5000) / 100) * 100,
                       base64: "",
                     };
 
-                    // Ensure minimum price of 400
                     paintingObject.price = Math.max(400, paintingObject.price);
 
                     gameState.artwork.push(paintingObject);
@@ -335,12 +328,6 @@ io.on("connection", (socket) => {
       return;
     }
 
-    /* Example submitPainting structure:
-  {
-    id: 1,
-    base64: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAYAAAC0..."
-  }
-  */
     try {
       let argObject = JSON.parse(arg);
       colorfulLog(`Parsed submitPainting object:`, "info", "socket", argObject);
