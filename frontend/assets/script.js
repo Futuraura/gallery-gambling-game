@@ -406,9 +406,17 @@ const setCanvasBackground = () => {
   ctx.fillRect(0, 0, paintingCanvas.width, paintingCanvas.height);
 };
 
+function getCanvasCoords(e) {
+  const rect = paintingCanvas.getBoundingClientRect();
+  const scaleX = paintingCanvas.width / rect.width;
+  const scaleY = paintingCanvas.height / rect.height;
+  return {
+    x: (e.clientX - rect.left) * scaleX,
+    y: (e.clientY - rect.top) * scaleY,
+  };
+}
+
 window.addEventListener("load", () => {
-  paintingCanvas.width = paintingCanvas.offsetWidth;
-  paintingCanvas.height = paintingCanvas.offsetHeight;
   setCanvasBackground();
 });
 
@@ -418,13 +426,14 @@ const drawRect = (e) => {
   ctx.lineWidth = brushWidth;
   ctx.strokeStyle = selectedTool === "eraser" ? "#ffffff" : selectedColor;
   ctx.fillStyle = selectedColor;
+  const { x, y } = getCanvasCoords(e);
 
-  const width = prevMouseX - e.offsetX;
-  const height = prevMouseY - e.offsetY;
+  const width = prevMouseX - x;
+  const height = prevMouseY - y;
   if (!paintBucketActive) {
-    ctx.strokeRect(e.offsetX, e.offsetY, width, height);
+    ctx.strokeRect(x, y, width, height);
   } else {
-    ctx.fillRect(e.offsetX, e.offsetY, width, height);
+    ctx.fillRect(x, y, width, height);
   }
   ctx.restore();
 };
@@ -435,9 +444,10 @@ const drawCircle = (e) => {
   ctx.lineWidth = brushWidth;
   ctx.strokeStyle = selectedTool === "eraser" ? "#ffffff" : selectedColor;
   ctx.fillStyle = selectedColor;
+  const { x, y } = getCanvasCoords(e);
 
   ctx.beginPath();
-  let radius = Math.sqrt(Math.pow(prevMouseX - e.offsetX, 2) + Math.pow(prevMouseY - e.offsetY, 2));
+  let radius = Math.sqrt(Math.pow(prevMouseX - x, 2) + Math.pow(prevMouseY - y, 2));
   ctx.arc(prevMouseX, prevMouseY, radius, 0, 2 * Math.PI);
   paintBucketActive ? ctx.fill() : ctx.stroke();
   ctx.restore();
@@ -445,8 +455,9 @@ const drawCircle = (e) => {
 
 const startDraw = (e) => {
   isDrawing = true;
-  prevMouseX = e.offsetX;
-  prevMouseY = e.offsetY;
+  const { x, y } = getCanvasCoords(e);
+  prevMouseX = x;
+  prevMouseY = y;
 
   offscreenCanvas.width = paintingCanvas.width;
   offscreenCanvas.height = paintingCanvas.height;
@@ -468,12 +479,13 @@ const drawing = (e) => {
   if (selectedTool === "brush" || selectedTool === "eraser") {
     offscreenCtx.strokeStyle = selectedTool === "eraser" ? "#ffffff" : selectedColor;
     offscreenCtx.lineWidth = brushWidth;
+    const { x, y } = getCanvasCoords(e);
     offscreenCtx.lineCap = "round";
     offscreenCtx.lineJoin = "round";
-    offscreenCtx.lineTo(e.offsetX, e.offsetY);
+    offscreenCtx.lineTo(x, y);
     offscreenCtx.stroke();
-    prevMouseX = e.offsetX;
-    prevMouseY = e.offsetY;
+    prevMouseX = x;
+    prevMouseY = y;
 
     ctx.putImageData(snapshot, 0, 0);
     ctx.globalAlpha = opacitySelector.value;
