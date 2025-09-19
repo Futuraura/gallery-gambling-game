@@ -318,72 +318,80 @@ io.on("connection", (socket) => {
           if (gameState.players.length === 3) {
             colorfulLog("Minimum players reached. Starting game...", "info", "game");
 
-            /* TBD: Make this into a ticking timer on user's screen and make the game begin properly */
             {
               const date = new Date(Date.now());
               date.setSeconds(date.getSeconds() + 10);
               io.emit("startGameStartCountdown", JSON.stringify({ endTime: date.getTime() }));
             }
             gameStartTimer = setTimeout(() => {
-              gameState.state = "painting";
+              gameState.state = "intermission";
               io.emit("gameStateUpdate", JSON.stringify(gameState.state));
               io.emit("cancelGameStartCountdown");
-              gameState.players.forEach((player) => {
-                const playerSocket = io.sockets.sockets.get(player.socketID);
-                if (playerSocket) {
-                  const paintingObjectsToBeSent = [];
 
-                  for (let i = 1; i <= 2; i++) {
-                    /* Later the socket can be used to check whether the player is that exact player or it's a fake */
-
-                    let paintingObject = {
-                      id: gameState.artwork.length + 1,
-                      artist: player.socketID,
-                      prompt: paintingThemes.pop(),
-                      price: Math.round((Math.random() * 5000) / 100) * 100,
-                      base64: "",
-                    };
-
-                    paintingObject.price = Math.max(400, paintingObject.price);
-
-                    gameState.artwork.push(paintingObject);
-
-                    paintingObjectsToBeSent.push({
-                      id: paintingObject.id,
-                      prompt: paintingObject.prompt,
+              emitHostDialogueAndAwait(
+                io,
+                gameState.players,
+                [
+                  "Welcome to this <b>WoNdRfUl</b> establishment.",
+                  "Here you will learn how to paint, bid, and lose all your money!",
+                  "Let's get started with a quick tutorial...",
+                ],
+                35,
+                900,
+                () => {
+                  gameState.state = "painting";
+                  io.emit("gameStateUpdate", JSON.stringify(gameState.state));
+                  gameState.players.forEach((player) => {
+                    const playerSocket = io.sockets.sockets.get(player.socketID);
+                    if (playerSocket) {
+                      const paintingObjectsToBeSent = [];
+                      for (let i = 1; i <= 2; i++) {
+                        let paintingObject = {
+                          id: gameState.artwork.length + 1,
+                          artist: player.socketID,
+                          prompt: paintingThemes.pop(),
+                          price: Math.max(400, Math.round((Math.random() * 5000) / 100) * 100),
+                          base64: "",
+                        };
+                        gameState.artwork.push(paintingObject);
+                        paintingObjectsToBeSent.push({
+                          id: paintingObject.id,
+                          prompt: paintingObject.prompt,
+                        });
+                      }
+                      playerSocket.emit(
+                        "updatePaintingPrompts",
+                        JSON.stringify(paintingObjectsToBeSent)
+                      );
+                    }
+                  });
+                  io.emit("startPaintingTimer", JSON.stringify({ endTime: Date.now() + 90000 }));
+                  colorfulLog("Game state updated to 'painting' and broadcasted.", "info", "game");
+                  setTimeout(() => {
+                    gameState.state = "auction";
+                    io.emit("gameStateUpdate", JSON.stringify(gameState.state));
+                    colorfulLog("Game state updated to 'auction' and broadcasted.", "info", "game");
+                    gameState.players.forEach((player) => {
+                      const otherPaintings = gameState.artwork.filter(
+                        (a) => a.artist !== player.socketID
+                      );
+                      const shuffled = otherPaintings
+                        .map((value) => ({ value, sort: Math.random() }))
+                        .sort((a, b) => a.sort - b.sort)
+                        .map(({ value }) => value);
+                      const hints = shuffled.slice(0, 3).map((painting) => ({
+                        prompt: painting.prompt,
+                        price: painting.price,
+                      }));
+                      const playerSocket = io.sockets.sockets.get(player.socketID);
+                      if (playerSocket) {
+                        playerSocket.emit("auctionHints", JSON.stringify(hints));
+                      }
                     });
-                  }
-                  playerSocket.emit(
-                    "updatePaintingPrompts",
-                    JSON.stringify(paintingObjectsToBeSent)
-                  );
+                  }, 90000);
+                  gameStartTimer = null;
                 }
-              });
-              io.emit("startPaintingTimer", JSON.stringify({ endTime: Date.now() + 90000 }));
-              colorfulLog("Game state updated to 'painting' and broadcasted.", "info", "game");
-              setTimeout(() => {
-                gameState.state = "auction";
-                io.emit("gameStateUpdate", JSON.stringify(gameState.state));
-                colorfulLog("Game state updated to 'auction' and broadcasted.", "info", "game");
-
-                gameState.players.forEach((player) => {
-                  const otherPaintings = gameState.artwork.filter(
-                    (a) => a.artist !== player.socketID
-                  );
-                  const shuffled = otherPaintings
-                    .map((value) => ({ value, sort: Math.random() }))
-                    .sort((a, b) => a.sort - b.sort)
-                    .map(({ value }) => value);
-                  const hints = shuffled
-                    .slice(0, 3)
-                    .map((painting) => ({ prompt: painting.prompt, price: painting.price }));
-                  const playerSocket = io.sockets.sockets.get(player.socketID);
-                  if (playerSocket) {
-                    playerSocket.emit("auctionHints", JSON.stringify(hints));
-                  }
-                });
-              }, 90000);
-              gameStartTimer = null;
+              );
             }, 10000);
           }
         }
