@@ -212,7 +212,7 @@ io.on("connection", (socket) => {
 
       if (argObject.playerName === "admin") {
         colorfulLog(
-          `Rejecting player ${argObject.playerName} - test name not allowed`,
+          `Rejecting player ${argObject.playerName} - name not allowed`,
           "warn",
           "validation"
         );
@@ -240,6 +240,7 @@ io.on("connection", (socket) => {
         callback(JSON.stringify({ success: false, reason: "Invalid characters." }));
       } else {
         /* All validations passed, proceed to add the player */
+
         colorfulLog(
           `Processing join request for player: ${argObject.playerName}`,
           "info",
