@@ -210,7 +210,9 @@ function initSocket() {
       onComplete: () => {
         hostDialogueText._typedInstance = null;
         if (obj.dialogueId) {
-          socket.emit("hostDialogueComplete", JSON.stringify({ dialogueId: obj.dialogueId }));
+          setTimeout(() => {
+            socket.emit("hostDialogueComplete", JSON.stringify({ dialogueId: obj.dialogueId }));
+          }, 1000);
         }
       },
     });
