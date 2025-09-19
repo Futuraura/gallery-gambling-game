@@ -30,6 +30,19 @@ backend/
         └── index.js
 
 - Add the ascii art category names that are present in frontend for easier finding of everything.
+
+- [CODERABBIT] Refactor deeply nested callbacks and extract constants.
+
+  This code segment has become difficult to maintain due to:
+
+  Deeply nested callbacks (4+ levels) creating "callback hell"
+  Magic numbers that should be named constants
+  All game initialization logic crammed into one place
+  Consider:
+
+  Using async/await or Promises to flatten the callback structure
+  Extracting magic numbers to named constants
+  Breaking down the initialization into smaller functions
 */
 
 /* Host speech stuff */
@@ -59,7 +72,12 @@ function setupHostDialogueCompleteHandler(io) {
       let obj;
       try {
         obj = JSON.parse(data);
-      } catch {
+      } catch (e) {
+        colorfulLog(
+          `Failed to parse hostDialogueComplete data: ${e.message}\nWith data: ${data}`,
+          "error",
+          "socket"
+        );
         return;
       }
       const tracker = dialogueTrackers.get(obj.dialogueId);
@@ -82,6 +100,8 @@ function setupHostDialogueCompleteHandler(io) {
 /* End host speech stuff */
 
 let gameStartTimer = null;
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 
 function colorfulLog(message, mode = "info", department = "general") {
   const timestamp = new Date().toISOString();
@@ -424,8 +444,6 @@ io.on("connection", (socket) => {
         return;
       }
 
-      // Limit base64 size (e.g., 5MB)
-      const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
       if (argObject.base64.length > MAX_IMAGE_SIZE) {
         callback(JSON.stringify({ success: false, reason: "Image too large." }));
         return;
