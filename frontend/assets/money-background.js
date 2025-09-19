@@ -1,5 +1,31 @@
-/* TODO: Find the source, cause I ain't to creditless pirate */
-/* Legacy code made by someone on codepen */
+/*
+The MIT License (MIT)
+
+Copyright (c) 2025 Zlerp (https://codepen.io/Zlerp/pen/WVExaK)
+Fork of an original work Make It Rain (https://codepen.io/raemadeline/pen/RaaoQR)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+/*
+Modded by Futuraura under the same license
+*/
 
 $(document).ready(function () {
   width = null;
@@ -70,8 +96,7 @@ function draw() {
     money.y += money.speed;
     money.angle += money.direction * money.rotationSpeed;
     money.x +=
-      Math.sin(money.currentFrame * money.driftFrequency + index) *
-      (money.driftAmplitude / 100);
+      Math.sin(money.currentFrame * money.driftFrequency + index) * (money.driftAmplitude / 100);
 
     if (money.y > height + imageHeight) {
       money.y = _.random(-height * 0.5, -imageHeight);
@@ -89,13 +114,7 @@ function drawRotatedImage(money) {
   canvasContext.save();
   canvasContext.translate(money.x, money.y);
   canvasContext.rotate(money.angle);
-  canvasContext.drawImage(
-    money.image,
-    0,
-    0,
-    100,
-    (100 * money.image.height) / money.image.width
-  );
+  canvasContext.drawImage(money.image, 0, 0, 100, (100 * money.image.height) / money.image.width);
   canvasContext.restore();
 }
 
