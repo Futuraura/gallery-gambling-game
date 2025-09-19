@@ -32,6 +32,55 @@ backend/
 - Add the ascii art category names that are present in frontend for easier finding of everything.
 */
 
+/* Host speech stuff */
+const dialogueTrackers = new Map();
+
+function emitHostDialogueAndAwait(io, players, texts, typeSpeed, minDelay, onComplete) {
+  const dialogueId = v4();
+  const expected = new Set(players.map((p) => p.socketID));
+  const responded = new Set();
+  dialogueTrackers.set(dialogueId, { expected, responded, callback: onComplete });
+
+  io.emit(
+    "hostDialogue",
+    JSON.stringify({
+      dialogueId,
+      texts,
+      typeSpeed,
+      minDelay,
+    })
+  );
+  return dialogueId;
+}
+
+function setupHostDialogueCompleteHandler(io) {
+  io.on("connection", (socket) => {
+    socket.on("hostDialogueComplete", (data) => {
+      let obj;
+      try {
+        obj = JSON.parse(data);
+      } catch {
+        return;
+      }
+      const tracker = dialogueTrackers.get(obj.dialogueId);
+      if (!tracker) return;
+      tracker.responded.add(socket.id);
+      if (tracker.responded.size >= tracker.expected.size) {
+        if (typeof tracker.callback === "function") tracker.callback();
+        dialogueTrackers.delete(obj.dialogueId);
+      }
+    });
+    socket.on("disconnect", () => {
+      for (const tracker of dialogueTrackers.values()) {
+        tracker.expected.delete(socket.id);
+        tracker.responded.delete(socket.id);
+      }
+    });
+  });
+}
+
+/* End host speech stuff */
+
 let gameStartTimer = null;
 
 function colorfulLog(message, mode = "info", department = "general") {
@@ -172,6 +221,8 @@ const PORT = process.env.PORT;
 httpServer.listen(PORT, HOST, () => {
   colorfulLog(`HTTP server listening on ${HOST}:${PORT}`, "info", "startup");
 });
+
+setupHostDialogueCompleteHandler(io);
 
 colorfulLog("Socket.IO server created", "info", "startup");
 
