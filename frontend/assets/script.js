@@ -8,6 +8,8 @@ const auctionDiv = document.getElementById("auctionDiv");
 const paintingDiv = document.getElementById("paintingDiv");
 const mainMenuDiv = document.getElementById("mainMenuDiv");
 const versionNumber = document.getElementById("versionNumber");
+const hostIntermissionDiv = document.getElementById("hostIntermissionDiv");
+const hostDialogueText = document.getElementById("hostDialogueText");
 
 const promptElement = document.getElementById("currentPrompt");
 const promptCounter = document.getElementById("currentPromptIndex");
@@ -37,6 +39,7 @@ function switchScreen(screen) {
   auctionDiv.style.display = "none";
   paintingDiv.style.display = "none";
   mainMenuDiv.style.display = "none";
+  hostIntermissionDiv.style.display = "none";
 
   screen.style.display = "flex";
 
@@ -177,9 +180,40 @@ function initSocket() {
       case "end":
         switchScreen(endScreen);
         break;
+      case "intermission":
+        switchScreen(hostIntermissionDiv);
+        break;
       default:
         console.error("Unknown game state:", newState);
     }
+  });
+
+  socket.on("hostDialogue", (data) => {
+    let obj = JSON.parse(data);
+    switchScreen(hostIntermissionDiv);
+    if (hostDialogueText._typedInstance) {
+      hostDialogueText._typedInstance.destroy();
+    }
+    hostDialogueText.innerHTML = "";
+    hostDialogueText._typedInstance = new Typed(hostDialogueText, {
+      strings: obj.texts,
+      typeSpeed: obj.typeSpeed,
+      backSpeed: 0,
+      startDelay: 0,
+      backDelay: obj.minDelay,
+      smartBackspace: false,
+      shuffle: false,
+      fadeOut: false,
+      loop: false,
+      showCursor: false,
+      contentType: "html",
+      onComplete: () => {
+        hostDialogueText._typedInstance = null;
+        if (obj.dialogueId) {
+          socket.emit("hostDialogueComplete", JSON.stringify({ dialogueId: obj.dialogueId }));
+        }
+      },
+    });
   });
 
   socket.on("connect", () => {
