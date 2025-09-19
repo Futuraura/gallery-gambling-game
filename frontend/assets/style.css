@@ -190,6 +190,63 @@ body {
   font-size: 32px;
 }
 
+/*
+ /$$   /$$                       /$$          
+| $$  | $$                      | $$          
+| $$  | $$  /$$$$$$   /$$$$$$$ /$$$$$$        
+| $$$$$$$$ /$$__  $$ /$$_____/|_  $$_/        
+| $$__  $$| $$  \ $$|  $$$$$$   | $$          
+| $$  | $$| $$  | $$ \____  $$  | $$ /$$      
+| $$  | $$|  $$$$$$/ /$$$$$$$/  |  $$$$/      
+|__/  |__/ \______/ |_______/    \___/        
+*/
+
+.hostIntermission {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1002;
+  background: rgba(255, 255, 255, 0.92);
+  gap: 32px;
+}
+
+.hostImage {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  margin-bottom: 8px;
+  background: none;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+#hostDialogueText {
+  min-height: 60px;
+  max-width: 600px;
+  font-family: "Nunito", sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: #222;
+  background: #fff;
+  border: 6px solid #000;
+  border-radius: 18px;
+  box-shadow: 8px 8px 4px 0 rgba(0, 0, 0, 0.18);
+  padding: 28px 36px;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 1.4;
+  word-break: break-word;
+  transition: background 0.2s, color 0.2s;
+}
+
 /* 
  /$$$$$$$                      /$$                                                               /$$
 | $$__  $$                    | $$                                                              | $$
