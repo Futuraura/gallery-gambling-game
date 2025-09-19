@@ -1,11 +1,13 @@
 import { Server } from "socket.io";
 import dotenv from "dotenv";
 import { createServer } from "http";
-import bcrypt from "bcrypt";
+import { v4 } from "uuid";
 
 /* TODO:
 - Refactor the whole shit to support multiple rooms
 Maybe databases would be nice?
+
+- !!!!! ADD SOME DAMN COMMENTS HERE !!!
 
 - Add input sanitization, EVERYWHERE.
 - Remove the Hash from the files.
@@ -128,12 +130,14 @@ class Player {
   socketID;
   nickname;
   color;
+  playerID;
 
   balance;
   loans;
 
   constructor(socketID, nickname) {
     this.socketID = socketID;
+    this.playerID = v4();
     this.nickname = nickname;
     this.color = colors.splice(Math.floor(Math.random() * colors.length), 1)[0];
 
@@ -144,7 +148,7 @@ class Player {
 
   getPlayerInfo() {
     colorfulLog(
-      `Player info: SocketID: ${this.socketID}, Nickname: ${this.nickname}, Color: ${this.color}, Balance: ${this.balance}, Loans: ${this.loans}`,
+      `Player info: SocketID: ${this.socketID}, UUID: ${this.playerID}, Nickname: ${this.nickname}, Color: ${this.color}, Balance: ${this.balance}, Loans: ${this.loans}`,
       "info",
       "player"
     );
