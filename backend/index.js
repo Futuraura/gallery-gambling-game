@@ -309,6 +309,28 @@ io.on("connection", (socket) => {
               });
               io.emit("startPaintingTimer", JSON.stringify({ endTime: Date.now() + 90000 }));
               colorfulLog("Game state updated to 'painting' and broadcasted.", "info", "game");
+              setTimeout(() => {
+                gameState.state = "auction";
+                io.emit("gameStateUpdate", JSON.stringify(gameState.state));
+                colorfulLog("Game state updated to 'auction' and broadcasted.", "info", "game");
+
+                gameState.players.forEach((player) => {
+                  const otherPaintings = gameState.artwork.filter(
+                    (a) => a.artist !== player.socketID
+                  );
+                  const shuffled = otherPaintings
+                    .map((value) => ({ value, sort: Math.random() }))
+                    .sort((a, b) => a.sort - b.sort)
+                    .map(({ value }) => value);
+                  const hints = shuffled
+                    .slice(0, 3)
+                    .map((painting) => `${painting.prompt} is worth ${painting.price}`);
+                  const playerSocket = io.sockets.sockets.get(player.socketID);
+                  if (playerSocket) {
+                    playerSocket.emit("auctionHints", JSON.stringify(hints));
+                  }
+                });
+              }, 90000);
               gameStartTimer = null;
             }, 10000);
           }
