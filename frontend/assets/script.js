@@ -104,6 +104,31 @@ function displayCurrentPrompt() {
 */
 
 function initSocket() {
+  socket.on("auctionHints", (data) => {
+    let hints = [];
+    try {
+      hints = JSON.parse(data);
+    } catch (e) {
+      hints = [];
+    }
+    const hintsList = document.querySelector(".auctionDiv .hintsList");
+    if (hintsList) {
+      hintsList.innerHTML = "";
+      hints.forEach((hintObj) => {
+        const p = document.createElement("p");
+        p.className = "artHint";
+        if (
+          hintObj &&
+          typeof hintObj === "object" &&
+          hintObj.prompt &&
+          hintObj.price !== undefined
+        ) {
+          p.textContent = `${hintObj.prompt} is worth ${hintObj.price}$`;
+        }
+        hintsList.appendChild(p);
+      });
+    }
+  });
   /* TODO: Refactor this to create one line with player list, not add a div for each one separately. */
   socket.on("playerUpdate", (data) => {
     let players = JSON.parse(data);

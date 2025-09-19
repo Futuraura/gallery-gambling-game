@@ -325,7 +325,7 @@ io.on("connection", (socket) => {
                     .map(({ value }) => value);
                   const hints = shuffled
                     .slice(0, 3)
-                    .map((painting) => `${painting.prompt} is worth ${painting.price}`);
+                    .map((painting) => ({ prompt: painting.prompt, price: painting.price }));
                   const playerSocket = io.sockets.sockets.get(player.socketID);
                   if (playerSocket) {
                     playerSocket.emit("auctionHints", JSON.stringify(hints));
