@@ -46,7 +46,69 @@ backend/
   Breaking down the initialization into smaller functions
 */
 
-/* Host speech stuff */
+dotenv.config({ path: ".env", quiet: true });
+const VERSION = process.env.APP_VERSION;
+const MAX_IMAGE_SIZE = process.env.MAX_IMAGE_SIZE_MB
+  ? parseInt(process.env.MAX_IMAGE_SIZE_MB) * 1024 * 1024
+  : 5 * 1024 * 1024;
+const HOST = process.env.HOST;
+const PORT = process.env.PORT;
+
+console.log(`--------------------------------------------------------`);
+colorfulLog(`App version: ${VERSION}`, "info", "startup");
+colorfulLog(`Max image size: ${MAX_IMAGE_SIZE} bytes`, "info", "startup");
+colorfulLog(`Host: ${HOST}`, "info", "startup");
+colorfulLog(`Port: ${PORT}`, "info", "startup");
+console.log(`--------------------------------------------------------`);
+
+function colorfulLog(message, mode = "info", department = "general") {
+  const timestamp = new Date().toISOString();
+  const colors = {
+    todo: "\u001b[34m", // Light Blue
+    info: "\u001b[32m", // Light Green
+    warn: "\u001b[33m", // Yellow
+    error: "\u001b[31m", // Red
+  };
+
+  console.log(`[${timestamp}] [${department.toUpperCase()}]\t${colors[mode]}${message}\x1b[0m`);
+}
+
+function shuffleArray(array) {
+  return array
+    .map((set) => {
+      return {
+        value: set,
+        sort: Math.random(),
+      };
+    })
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
+}
+
+/*
+ /$$   /$$                       /$$                        
+| $$  | $$                      | $$                        
+| $$  | $$  /$$$$$$   /$$$$$$$ /$$$$$$                      
+| $$$$$$$$ /$$__  $$ /$$_____/|_  $$_/                      
+| $$__  $$| $$  \ $$|  $$$$$$   | $$                        
+| $$  | $$| $$  | $$ \____  $$  | $$ /$$                    
+| $$  | $$|  $$$$$$/ /$$$$$$$/  |  $$$$/                    
+|__/  |__/ \______/ |_______/    \___/                      
+                                                            
+                                                            
+                                                            
+  /$$$$$$                                          /$$      
+ /$$__  $$                                        | $$      
+| $$  \__/  /$$$$$$   /$$$$$$   /$$$$$$   /$$$$$$$| $$$$$$$ 
+|  $$$$$$  /$$__  $$ /$$__  $$ /$$__  $$ /$$_____/| $$__  $$
+ \____  $$| $$  \ $$| $$$$$$$$| $$$$$$$$| $$      | $$  \ $$
+ /$$  \ $$| $$  | $$| $$_____/| $$_____/| $$      | $$  | $$
+|  $$$$$$/| $$$$$$$/|  $$$$$$$|  $$$$$$$|  $$$$$$$| $$  | $$
+ \______/ | $$____/  \_______/ \_______/ \_______/|__/  |__/
+          | $$                                              
+          | $$                                              
+          |__/                                              
+*/
 const dialogueTrackers = new Map();
 
 function emitHostDialogueAndAwait(io, players, texts, typeSpeed, minDelay, onComplete) {
