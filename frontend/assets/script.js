@@ -21,6 +21,24 @@ let gameState = {
   promptsSubmitted: 0,
 };
 
+function triggerAuctionSignFly() {
+  const sign = document.querySelector(".auctionSign");
+  if (!sign) return;
+
+  sign.classList.remove("fly-in", "fly-out");
+
+  sign.classList.add("fly-in");
+
+  setTimeout(() => {
+    sign.classList.remove("fly-in");
+    sign.classList.add("fly-out");
+  }, 3000);
+
+  setTimeout(() => {
+    sign.classList.remove("fly-out");
+  }, 4000);
+}
+
 function throwError(code, details) {
   const errorCode = document.getElementById("errorCode");
   const errorDetails = document.getElementById("errorMoreInfo");
