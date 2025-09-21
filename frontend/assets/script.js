@@ -10,6 +10,7 @@ const mainMenuDiv = document.getElementById("mainMenuDiv");
 const versionNumber = document.getElementById("versionNumber");
 const hostIntermissionDiv = document.getElementById("hostIntermissionDiv");
 const hostDialogueText = document.getElementById("hostDialogueText");
+const dotsElem = document.getElementById("connectedDots");
 
 const promptElement = document.getElementById("currentPrompt");
 const promptCounter = document.getElementById("currentPromptIndex");
@@ -20,6 +21,13 @@ let gameState = {
   paintingPrompts: [],
   promptsSubmitted: 0,
 };
+
+const frames = ["", ".", "..", "..."];
+let frame = 0;
+let dotsInterval = setInterval(() => {
+  dotsElem.innerText = frames[frame];
+  frame = (frame + 1) % frames.length;
+}, 300);
 
 function triggerAuctionSignFly() {
   const sign = document.querySelector(".auctionSign");
