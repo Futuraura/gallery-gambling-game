@@ -380,7 +380,17 @@ io.on("connection", (socket) => {
           );
           gameState.players.push(new Player(socket.id, argObject.playerName));
           callback(JSON.stringify({ success: true }));
-          io.emit("playerUpdate", JSON.stringify(gameState.players));
+          io.emit(
+            "playerUpdate",
+            JSON.stringify(
+              gameState.players.map((p) => {
+                return {
+                  nickname: p.nickname,
+                  color: p.color,
+                };
+              })
+            )
+          );
           socket.emit("gameStateUpdate", JSON.stringify(gameState.state));
           if (gameState.players.length === 3) {
             colorfulLog("Minimum players reached. Starting game...", "info", "game");
