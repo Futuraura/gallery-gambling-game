@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import dotenv from "dotenv";
 import { createServer } from "http";
 import { v4 } from "uuid";
+import * as fs from "fs";
 
 /* TODO:
 - Refactor the whole shit to support multiple rooms
