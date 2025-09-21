@@ -139,8 +139,6 @@ let gameState = {
   players: [],
 };
 
-/* Painting themes, randomized*/
-
 let paintingThemes = [
   "Car Dealership",
   "Juice",
