@@ -536,7 +536,11 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", (reason) => {
     colorfulLog(`Client ${socket.id} disconnected. Reason: ${reason}`, "info", "connection");
-    colorfulLog(`Total active connections: ${io.engine.clientsCount}`, "info", "connection");
+
+    for (const tracker of dialogueTrackers.values()) {
+      tracker.expected.delete(socket.id);
+      tracker.responded.delete(socket.id);
+    }
 
     const disconnectedPlayer = gameState.players.find((p) => p.socketID === socket.id);
     if (disconnectedPlayer) {
