@@ -481,6 +481,106 @@ window.addEventListener("load", () => {
   setCanvasBackground();
 });
 
+// Thx to William Malone for the algorithm
+const floodFill = (startX, startY, fillColor) => {
+  const imageData = ctx.getImageData(0, 0, paintingCanvas.width, paintingCanvas.height);
+  const canvasWidth = paintingCanvas.width;
+  const canvasHeight = paintingCanvas.height;
+
+  // Stackoverflow has done the deed here :D
+  const hexToRgb = (hex) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
+      : null;
+  };
+
+  const fillRgb = hexToRgb(fillColor);
+  if (!fillRgb) return;
+
+  const fillColorR = fillRgb.r;
+  const fillColorG = fillRgb.g;
+  const fillColorB = fillRgb.b;
+
+  const startPixelPos = (startY * canvasWidth + startX) * 4;
+  const startR = imageData.data[startPixelPos];
+  const startG = imageData.data[startPixelPos + 1];
+  const startB = imageData.data[startPixelPos + 2];
+
+  if (startR === fillColorR && startG === fillColorG && startB === fillColorB) {
+    return;
+  }
+
+  const matchStartColor = (pixelPos) => {
+    const r = imageData.data[pixelPos];
+    const g = imageData.data[pixelPos + 1];
+    const b = imageData.data[pixelPos + 2];
+    return r === startR && g === startG && b === startB;
+  };
+
+  const colorPixel = (pixelPos) => {
+    imageData.data[pixelPos] = fillColorR;
+    imageData.data[pixelPos + 1] = fillColorG;
+    imageData.data[pixelPos + 2] = fillColorB;
+    imageData.data[pixelPos + 3] = 255;
+  };
+
+  const pixelStack = [[startX, startY]];
+
+  while (pixelStack.length) {
+    const newPos = pixelStack.pop();
+    let x = newPos[0];
+    let y = newPos[1];
+
+    let pixelPos = (y * canvasWidth + x) * 4;
+
+    while (y >= 0 && matchStartColor(pixelPos)) {
+      y--;
+      pixelPos -= canvasWidth * 4;
+    }
+    pixelPos += canvasWidth * 4;
+    y++;
+
+    let reachLeft = false;
+    let reachRight = false;
+
+    while (y < canvasHeight && matchStartColor(pixelPos)) {
+      colorPixel(pixelPos);
+
+      if (x > 0) {
+        if (matchStartColor(pixelPos - 4)) {
+          if (!reachLeft) {
+            pixelStack.push([x - 1, y]);
+            reachLeft = true;
+          }
+        } else if (reachLeft) {
+          reachLeft = false;
+        }
+      }
+
+      if (x < canvasWidth - 1) {
+        if (matchStartColor(pixelPos + 4)) {
+          if (!reachRight) {
+            pixelStack.push([x + 1, y]);
+            reachRight = true;
+          }
+        } else if (reachRight) {
+          reachRight = false;
+        }
+      }
+
+      pixelPos += canvasWidth * 4;
+      y++;
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+};
+
 const drawRect = (e) => {
   ctx.save();
   ctx.globalAlpha = opacitySelector.value;
@@ -574,6 +674,14 @@ colorSelector.addEventListener("change", () => {
 
 paintingCanvas.addEventListener("mousedown", (e) => {
   selectedTool = document.querySelector(".tool.selectableTool.selected").dataset.tool;
+
+  if (selectedTool === "brush" && paintBucketActive) {
+    const { x, y } = getCanvasCoords(e);
+    floodFill(Math.floor(x), Math.floor(y), selectedColor);
+    snapshot = ctx.getImageData(0, 0, paintingCanvas.width, paintingCanvas.height);
+    return;
+  }
+
   startDraw(e);
   paintingCanvas.addEventListener("mousemove", drawing);
 
