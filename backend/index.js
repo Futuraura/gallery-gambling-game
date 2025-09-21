@@ -129,132 +129,89 @@ function emitHostDialogueAndAwait(io, players, texts, typeSpeed, minDelay, onCom
   return dialogueId;
 }
 
-function setupHostDialogueCompleteHandler(io) {
-  io.on("connection", (socket) => {
-    socket.on("hostDialogueComplete", (data) => {
-      let obj;
-      try {
-        obj = JSON.parse(data);
-      } catch (e) {
-        colorfulLog(
-          `Failed to parse hostDialogueComplete data: ${e.message}\nWith data: ${data}`,
-          "error",
-          "socket"
-        );
-        return;
-      }
-      const tracker = dialogueTrackers.get(obj.dialogueId);
-      if (!tracker) return;
-      tracker.responded.add(socket.id);
-      if (tracker.responded.size >= tracker.expected.size) {
-        if (typeof tracker.callback === "function") tracker.callback();
-        dialogueTrackers.delete(obj.dialogueId);
-      }
-    });
-    socket.on("disconnect", () => {
-      for (const tracker of dialogueTrackers.values()) {
-        tracker.expected.delete(socket.id);
-        tracker.responded.delete(socket.id);
-      }
-    });
-  });
-}
-
-/* End host speech stuff */
+/*
+  /$$$$$$                                          /$$    /$$                             
+ /$$__  $$                                        | $$   | $$                             
+| $$  \__/  /$$$$$$  /$$$$$$/$$$$   /$$$$$$       | $$   | $$ /$$$$$$   /$$$$$$   /$$$$$$$
+| $$ /$$$$ |____  $$| $$_  $$_  $$ /$$__  $$      |  $$ / $$/|____  $$ /$$__  $$ /$$_____/
+| $$|_  $$  /$$$$$$$| $$ \ $$ \ $$| $$$$$$$$       \  $$ $$/  /$$$$$$$| $$  \__/|  $$$$$$ 
+| $$  \ $$ /$$__  $$| $$ | $$ | $$| $$_____/        \  $$$/  /$$__  $$| $$       \____  $$
+|  $$$$$$/|  $$$$$$$| $$ | $$ | $$|  $$$$$$$         \  $/  |  $$$$$$$| $$       /$$$$$$$/
+ \______/  \_______/|__/ |__/ |__/ \_______/          \_/    \_______/|__/      |_______/ 
+*/
 
 let gameStartTimer = null;
 
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
-
-function colorfulLog(message, mode = "info", department = "general") {
-  const timestamp = new Date().toISOString();
-  const colors = {
-    todo: "\u001b[34m", // Light Blue
-    info: "\u001b[32m", // Light Green
-    warn: "\u001b[33m", // Yellow
-    error: "\u001b[31m", // Red
-  };
-
-  console.log(`[${timestamp}] [${department.toUpperCase()}]\t${colors[mode]}${message}\x1b[0m`);
-}
-
-colorfulLog("Starting application...", "info", "startup");
-dotenv.config({ path: ".env" });
-const VERSION = process.env.APP_VERSION;
-colorfulLog(`App version: ${VERSION}`, "info", "startup");
+colorfulLog("Declaring game variables...", "info", "startup");
 
 let colors = ["red", "blue", "green", "orange", "purple", "yellow", "gray"];
-colorfulLog(`Available colors: ${colors.join(", ")}`, "info", "startup");
 
 let gameState = {
   state: "waiting", // waiting, painting, auction, bank, ended
-  /* 
-    Example artwork structure for future use:
-    {
-      id: 1,
-      prompt: "A duck",
-      artist: <playerID>,
-      price: 4800,
-      base64: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAYAAAC0...",
-    }
-  */
   artwork: [],
   players: [],
 };
 
-let paintingThemes = [
-  "Car Dealership",
-  "Juice",
-  "Parking Lot",
-  "Roadmap",
-  "Skateboard",
-  "Party",
-  "Mona Lisa",
-  "Hello World!",
-  "Sunset",
-  "Mountain",
-  "A roll of toilet paper",
-  "Cat",
-  "Dog",
-  "House",
-  "Tree",
-  "Wrist watch",
-  "Bank™ Logo",
-  "A single sock",
-  "A broken pencil",
-  "A spilled drink",
-  "A sandwich cut in half",
-  "A traffic cone",
-  "A shopping cart",
-  "A mailbox",
-  "A slice of watermelon",
-  "A paper airplane",
-  "A pair of sunglasses",
-  "A rubber duck",
-  "A pizza box",
-  "A cactus in a pot",
-  "A snow globe",
-  "A chess piece",
-  "A lightbulb",
-  "A ladder",
-  "A pair of boots",
-  "A kite",
-  "A mug with steam",
-  "A traffic light",
-  "A calendar page",
-  "A doormat",
-  "A slice of cheese",
-  "A paintbrush",
-  "A keychain",
-  "A sticky note",
-  "A remote control",
-  "A pillow",
-  "A goldfish bowl",
-  "A bar of soap",
-]
-  .map((a) => ({ sort: Math.random(), value: a }))
-  .sort((a, b) => a.sort - b.sort)
-  .map((a) => a.value);
+let paintingPrompts;
+function dealPrompts() {
+  try {
+    paintingPrompts = shuffleArray(
+      JSON.parse(fs.readFileSync("jackboxPrompts/prompts.json", "utf-8"))
+    );
+    colorfulLog(
+      `Loaded painting prompts from prompts.json. ${paintingPrompts.length} prompt categories available.`,
+      "info",
+      "startup"
+    );
+  } catch (e) {
+    colorfulLog(
+      `Failed to load painting prompts from prompts.json: ${e.message}`,
+      "error",
+      "startup"
+    );
+    process.exit(1);
+  }
+  const selectedSets = paintingPrompts.slice(0, gameState.players.length);
+
+  for (let promptCategoryIndex in selectedSets) {
+    const randomPrompts = shuffleArray(selectedSets[promptCategoryIndex].prompts);
+    const prompt1 = randomPrompts.pop();
+    const prompt2 = randomPrompts.pop();
+
+    if (parseInt(promptCategoryIndex) === selectedSets.length - 1) {
+      gameState.artwork.push({
+        id: prompt1.id,
+        prompt: prompt1.text,
+        artist: gameState.players[promptCategoryIndex].playerID,
+        price: Math.max(400, Math.round((Math.random() * 4000) / 100) * 100),
+        base64: "",
+      });
+      gameState.artwork.push({
+        id: prompt2.id,
+        prompt: prompt2.text,
+        artist: gameState.players[0].playerID,
+        price: Math.max(400, Math.round((Math.random() * 4000) / 100) * 100),
+        base64: "",
+      });
+      return;
+    }
+
+    gameState.artwork.push({
+      id: prompt1.id,
+      prompt: prompt1.text,
+      artist: gameState.players[promptCategoryIndex].playerID,
+      price: Math.max(400, Math.round((Math.random() * 4000) / 100) * 100),
+      base64: "",
+    });
+    gameState.artwork.push({
+      id: prompt2.id,
+      prompt: prompt2.text,
+      artist: gameState.players[promptCategoryIndex + 1].playerID,
+      price: Math.max(400, Math.round((Math.random() * 4000) / 100) * 100),
+      base64: "",
+    });
+  }
+}
 
 class Player {
   socketID;
