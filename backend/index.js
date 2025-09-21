@@ -242,39 +242,68 @@ class Player {
   }
 }
 
-colorfulLog("Players array initialized", "info", "game");
+/*
+ /$$   /$$ /$$$$$$$$ /$$$$$$$$ /$$$$$$$        /$$           /$$   /$$    
+| $$  | $$|__  $$__/|__  $$__/| $$__  $$      |__/          |__/  | $$    
+| $$  | $$   | $$      | $$   | $$  \ $$       /$$ /$$$$$$$  /$$ /$$$$$$  
+| $$$$$$$$   | $$      | $$   | $$$$$$$/      | $$| $$__  $$| $$|_  $$_/  
+| $$__  $$   | $$      | $$   | $$____/       | $$| $$  \ $$| $$  | $$    
+| $$  | $$   | $$      | $$   | $$            | $$| $$  | $$| $$  | $$ /$$
+| $$  | $$   | $$      | $$   | $$            | $$| $$  | $$| $$  |  $$$$/
+|__/  |__/   |__/      |__/   |__/            |__/|__/  |__/|__/   \___/  
+*/
 
 const httpServer = createServer();
-colorfulLog("HTTP server created", "info", "startup");
-
 const io = new Server(httpServer, {
   cors: {
     origin: "*",
   },
 });
 
-const HOST = process.env.HOST;
-const PORT = process.env.PORT;
-
 httpServer.listen(PORT, HOST, () => {
   colorfulLog(`HTTP server listening on ${HOST}:${PORT}`, "info", "startup");
 });
 
-setupHostDialogueCompleteHandler(io);
-
-colorfulLog("Socket.IO server created", "info", "startup");
+/*
+ /$$$$$$  /$$$$$$                    /$$                                                
+|_  $$_/ /$$__  $$                  | $$                                                
+  | $$  | $$  \ $$        /$$$$$$$ /$$$$$$    /$$$$$$   /$$$$$$   /$$$$$$  /$$$$$$/$$$$ 
+  | $$  | $$  | $$       /$$_____/|_  $$_/   /$$__  $$ /$$__  $$ |____  $$| $$_  $$_  $$
+  | $$  | $$  | $$      |  $$$$$$   | $$    | $$  \__/| $$$$$$$$  /$$$$$$$| $$ \ $$ \ $$
+  | $$  | $$  | $$       \____  $$  | $$ /$$| $$      | $$_____/ /$$__  $$| $$ | $$ | $$
+ /$$$$$$|  $$$$$$/       /$$$$$$$/  |  $$$$/| $$      |  $$$$$$$|  $$$$$$$| $$ | $$ | $$
+|______/ \______/       |_______/    \___/  |__/       \_______/ \_______/|__/ |__/ |__/
+*/
 
 io.on("connection", (socket) => {
   colorfulLog(
-    `New client connected from ${socket.handshake.address}. Assigned the ID: ${socket.id}`,
+    `New client connected from ${socket.handshake.address}. Assigned the ID: ${socket.id}.`,
     "info",
     "connection"
   );
-  colorfulLog(`Total active connections: ${io.engine.clientsCount}`, "info", "connection");
+
+  socket.on("hostDialogueComplete", (data) => {
+    let obj;
+    try {
+      obj = JSON.parse(data);
+    } catch (e) {
+      colorfulLog(
+        `Failed to parse hostDialogueComplete data: ${e.message}\nWith data: ${data}`,
+        "error",
+        "socket"
+      );
+      return;
+    }
+    const tracker = dialogueTrackers.get(obj.dialogueId);
+    if (!tracker) return;
+    tracker.responded.add(socket.id);
+    if (tracker.responded.size >= tracker.expected.size) {
+      if (typeof tracker.callback === "function") tracker.callback();
+      dialogueTrackers.delete(obj.dialogueId);
+    }
+  });
 
   socket.on("openConnection", (arg, callback) => {
-    colorfulLog(`Received openConnection request: ${arg}`, "info", "socket");
-
     callback(
       JSON.stringify({
         version: VERSION,
