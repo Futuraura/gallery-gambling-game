@@ -357,130 +357,103 @@ io.on("connection", (socket) => {
 
     try {
       let argObject = JSON.parse(arg);
-      colorfulLog(`Parsed playerJoin object:`, "info", "socket", argObject);
 
-      /* Running some validations for the player nickname */
+      /* Проверка ника игрока */
+      let joinValidation = canPlayerJoin(argObject.playerName);
+      if (joinValidation) {
+        callback(JSON.stringify({ success: false, reason: joinValidation[1] }));
+        return;
+      }
 
-      if (argObject.playerName === "admin") {
-        colorfulLog(
-          `Rejecting player ${argObject.playerName} - name not allowed`,
-          "warn",
-          "validation"
-        );
-        callback(JSON.stringify({ success: false, reason: "Nah." }));
-      } else if (gameState.players.find((p) => p.nickname === argObject.playerName)) {
-        colorfulLog(
-          `Rejecting player ${argObject.playerName} - name already taken`,
-          "warn",
-          "validation"
-        );
-        callback(JSON.stringify({ success: false, reason: "Name already taken." }));
-      } else if (argObject.playerName.length < 3 || argObject.playerName.length > 16) {
-        colorfulLog(
-          `Rejecting player ${argObject.playerName} - invalid name length`,
-          "warn",
-          "validation"
-        );
-        callback(JSON.stringify({ success: false, reason: "Invalid name length." }));
-      } else if (argObject.playerName.match(/[^a-zA-Z0-9_]/)) {
-        colorfulLog(
-          `Rejecting player ${argObject.playerName} - invalid characters`,
-          "warn",
-          "validation"
-        );
-        callback(JSON.stringify({ success: false, reason: "Invalid characters." }));
-      } else {
-        /* All validations passed, proceed to add the player */
+      colorfulLog(`Processing join request for player: ${argObject.playerName}`, "info", "player");
 
-        colorfulLog(
-          `Processing join request for player: ${argObject.playerName}`,
-          "info",
-          "player"
+      gameState.players.push(new Player(socket.id, argObject.playerName));
+      callback(JSON.stringify({ success: true }));
+      io.emit(
+        "playerUpdate",
+        JSON.stringify(
+          gameState.players.map((p) => {
+            return {
+              nickname: p.nickname,
+              color: p.color,
+            };
+          })
+        )
+      );
+      socket.emit("gameStateUpdate", JSON.stringify(gameState.state));
+
+      /* Запуск игры */
+      if (gameState.players.length === 3) {
+        colorfulLog("Minimum players reached. Starting game...", "info", "game");
+
+        /* Создаём таймер и рассылаем всем */
+        let gameStartTimerEnd = new Date(Date.now());
+        gameStartTimerEnd.setSeconds(gameStartTimerEnd.getSeconds() + 10);
+        io.emit(
+          "startGameStartCountdown",
+          JSON.stringify({ endTime: gameStartTimerEnd.getTime() })
         );
-        colorfulLog(`Available colors remaining: ${colors.length}`, "info", "game");
 
-        if (colors.length === 0) {
-          colorfulLog("No colors left! Game is full.", "warn", "game");
-          callback(JSON.stringify({ success: false, reason: "The game is full." }));
-        } else if (gameState.state === "ended") {
-          colorfulLog("Game has ended. No new players can join.", "warn", "game");
-          callback(JSON.stringify({ success: false, reason: "Game has ended." }));
-        } else {
-          colorfulLog(
-            `Accepting player ${argObject.playerName} - colors available: ${colors.join(", ")}`,
-            "info",
-            "player"
-          );
-          gameState.players.push(new Player(socket.id, argObject.playerName));
-          callback(JSON.stringify({ success: true }));
-          io.emit(
-            "playerUpdate",
-            JSON.stringify(
-              gameState.players.map((p) => {
-                return {
-                  nickname: p.nickname,
-                  color: p.color,
-                };
-              })
-            )
-          );
-          socket.emit("gameStateUpdate", JSON.stringify(gameState.state));
-          if (gameState.players.length === 3) {
-            colorfulLog("Minimum players reached. Starting game...", "info", "game");
+        gameStartTimer = setTimeout(() => {
+          io.emit("resetGameStartCountdown");
 
-            {
-              const date = new Date(Date.now());
-              date.setSeconds(date.getSeconds() + 10);
-              io.emit("startGameStartCountdown", JSON.stringify({ endTime: date.getTime() }));
-            }
-            gameStartTimer = setTimeout(() => {
-              gameState.state = "intermission";
+          /* Раздаём темы для рисования */
+          dealPrompts();
+
+          /* Начинаем диалог хоста */
+          emitHostDialogueAndAwait(
+            io,
+            gameState.players,
+            [
+              "1",
+              /*"Welcome to this wonderful establishment!",
+                "Here you will learn how to paint, bid, and lose all your money!",
+                "Let's get started with a quick tutorial...",
+                "First, you'll be given two painting prompts.",
+                "Unleash your inner Leonardo Da Vinci and create a masterpiece for each prompt.",
+                "You will be given 90 seconds, because true art cannot be rushed.",
+                "Once the timer ends, the auction will start and your masterpieces will get a random price.",*/
+            ],
+            35,
+            900,
+            () => {
+              gameState.state = "painting";
               io.emit("gameStateUpdate", JSON.stringify(gameState.state));
-              io.emit("cancelGameStartCountdown");
 
-              emitHostDialogueAndAwait(
-                io,
-                gameState.players,
-                [
-                  "Welcome to this <b>WoNdRfUl</b> establishment.",
-                  "Here you will learn how to paint, bid, and lose all your money!",
-                  "Let's get started with a quick tutorial...",
-                ],
-                35,
-                900,
-                () => {
-                  gameState.state = "painting";
-                  io.emit("gameStateUpdate", JSON.stringify(gameState.state));
-                  gameState.players.forEach((player) => {
-                    const playerSocket = io.sockets.sockets.get(player.socketID);
-                    if (playerSocket) {
-                      const paintingObjectsToBeSent = [];
-                      for (let i = 1; i <= 2; i++) {
-                        let paintingObject = {
-                          id: gameState.artwork.length + 1,
-                          artist: player.socketID,
-                          prompt: paintingThemes.pop(),
-                          price: Math.max(400, Math.round((Math.random() * 5000) / 100) * 100),
-                          base64: "",
-                        };
-                        gameState.artwork.push(paintingObject);
-                        paintingObjectsToBeSent.push({
-                          id: paintingObject.id,
-                          prompt: paintingObject.prompt,
-                        });
-                      }
-                      playerSocket.emit(
-                        "updatePaintingPrompts",
-                        JSON.stringify(paintingObjectsToBeSent)
-                      );
-                    }
-                  });
-                  io.emit("startPaintingTimer", JSON.stringify({ endTime: Date.now() + 90000 }));
-                  colorfulLog("Game state updated to 'painting' and broadcasted.", "info", "game");
-                  setTimeout(() => {
+              /* Отправляем каждому игроку его темы для рисования */
+              gameState.players.forEach((player) => {
+                const playerSocket = io.sockets.sockets.get(player.socketID);
+
+                const paintingObjectsToBeSent = gameState.artwork
+                  .filter((a) => a.artist === player.playerID)
+                  .map((painting) => ({ id: painting.id, prompt: painting.prompt }));
+
+                playerSocket.emit("updatePaintingPrompts", JSON.stringify(paintingObjectsToBeSent));
+              });
+
+              io.emit("startPaintingTimer", JSON.stringify({ endTime: Date.now() + 90000 }));
+              colorfulLog("Game state updated to 'painting' and broadcasted.", "info", "game");
+              setTimeout(() => {
+                colorfulLog("Painting phase ended. Starting auction phase...", "info", "game");
+                emitHostDialogueAndAwait(
+                  io,
+                  gameState.players,
+                  [
+                    "2",
+                    /*"Time's up! Put down your brushes and step away from your masterpieces.",
+                      "It's time for the auction! Each of your paintings has been assigned a random price.",
+                      "Remember, you cannot bid on your own artwork, so choose wisely.",*/
+                  ],
+                  35,
+                  900,
+                  () => {
                     gameState.state = "auction";
                     io.emit("gameStateUpdate", JSON.stringify(gameState.state));
-                    colorfulLog("Game state updated to 'auction' and broadcasted.", "info", "game");
+
+                    /* Проверяем, все ли сдали свои работы */
+                    replaceEmptyPaintings();
+
+                    /* Отправляем каждому игроку 3 подсказки для аукциона */
                     gameState.players.forEach((player) => {
                       const otherPaintings = gameState.artwork.filter(
                         (a) => a.artist !== player.socketID
@@ -498,13 +471,13 @@ io.on("connection", (socket) => {
                         playerSocket.emit("auctionHints", JSON.stringify(hints));
                       }
                     });
-                  }, 90000);
-                  gameStartTimer = null;
-                }
-              );
-            }, 10000);
-          }
-        }
+                  }
+                );
+              }, 90000);
+              gameStartTimer = null;
+            }
+          );
+        }, gameStartTimerEnd.getTime() - Date.now());
       }
     } catch (e) {
       colorfulLog(`Error processing playerJoin request: ${e}`, "error", "socket");
