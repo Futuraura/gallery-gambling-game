@@ -575,6 +575,7 @@ io.on("connection", (socket) => {
         if (gameStartTimer) {
           clearTimeout(gameStartTimer);
         }
+        io.emit("resetGameStartCountdown");
         colorfulLog("Not enough players to start the game. Waiting timer cleared.", "info", "game");
       }
     }
