@@ -788,7 +788,6 @@ submitPaintingButton.addEventListener("click", () => {
         } else {
           submitPaintingButton.disabled = true;
           promptElement.innerText = "All paintings submitted!";
-          promptCounter.innerText = gameState.promptsSubmitted + 1;
         }
       } else {
         Toastify({
