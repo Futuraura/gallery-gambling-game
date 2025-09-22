@@ -294,10 +294,10 @@ function initSocket() {
     let obj = JSON.parse(data);
     let flyOutDiv = document.getElementById("flyOutDiv");
     flyOutDiv.style.display = "flex";
-    startTimer(obj.endTime, document.getElementById("gameStartCountdown"));
+    startTimer(obj.endTime, document.getElementById("gameStartCountdown"), false);
   });
 
-  socket.on("cancelGameStartCountdown", () => {
+  socket.on("resetGameStartCountdown", () => {
     clearTimeout(gameStartCountdown);
     document.getElementById("flyOutDiv").style.display = "none";
   });
