@@ -173,44 +173,77 @@ function dealPrompts() {
   }
   const selectedSets = paintingPrompts.slice(0, gameState.players.length);
 
-  for (let promptCategoryIndex in selectedSets) {
-    const randomPrompts = shuffleArray(selectedSets[promptCategoryIndex].prompts);
+  for (let i = 0; i < selectedSets.length; i++) {
+    const randomPrompts = shuffleArray(selectedSets[i].prompts);
     const prompt1 = randomPrompts.pop();
     const prompt2 = randomPrompts.pop();
-
-    if (parseInt(promptCategoryIndex) === selectedSets.length - 1) {
-      gameState.artwork.push({
-        id: prompt1.id,
-        prompt: prompt1.text,
-        artist: gameState.players[promptCategoryIndex].playerID,
-        price: Math.max(400, Math.round((Math.random() * 4000) / 100) * 100),
-        base64: "",
-      });
-      gameState.artwork.push({
-        id: prompt2.id,
-        prompt: prompt2.text,
-        artist: gameState.players[0].playerID,
-        price: Math.max(400, Math.round((Math.random() * 4000) / 100) * 100),
-        base64: "",
-      });
-      return;
-    }
 
     gameState.artwork.push({
       id: prompt1.id,
       prompt: prompt1.text,
-      artist: gameState.players[promptCategoryIndex].playerID,
+      artist: gameState.players[i].playerID,
       price: Math.max(400, Math.round((Math.random() * 4000) / 100) * 100),
       base64: "",
     });
     gameState.artwork.push({
       id: prompt2.id,
       prompt: prompt2.text,
-      artist: gameState.players[promptCategoryIndex + 1].playerID,
+      artist: gameState.players[(i + 1) % gameState.players.length].playerID,
       price: Math.max(400, Math.round((Math.random() * 4000) / 100) * 100),
       base64: "",
     });
   }
+}
+
+function replaceEmptyPaintings() {
+  didHaveEmpty = false;
+
+  for (let painting of gameState.artwork) {
+    if (!painting.base64 || painting.base64.length === 0) {
+      colorfulLog(
+        `Painting ${painting.id} by player ${painting.artist} is empty. Replacing with placeholder.`,
+        "warn",
+        "game"
+      );
+      painting.base64 = fs.readFileSync(`jackboxPrompts/placeholders/${painting.id}.png`, "utf-8");
+      didHaveEmpty = true;
+    }
+  }
+
+  if (didHaveEmpty) {
+    colorfulLog(
+      "Some paintings were empty and have been replaced with placeholders.",
+      "info",
+      "game"
+    );
+    return true;
+  } else {
+    colorfulLog("All paintings were submitted properly.", "info", "game");
+    return false;
+  }
+}
+
+function canPlayerJoin(nickname) {
+  if (nickname === "admin") {
+    colorfulLog(`Rejecting player ${nickname} - name not allowed`, "warn", "validation");
+    return [true, "Name not allowed."];
+  } else if (gameState.players.find((p) => p.nickname === nickname)) {
+    colorfulLog(`Rejecting player ${nickname} - name already taken`, "warn", "validation");
+    return [true, "Name already taken."];
+  } else if (nickname.length < 3 || nickname.length > 16) {
+    colorfulLog(`Rejecting player ${nickname} - invalid name length`, "warn", "validation");
+    return [true, "Invalid name length."];
+  } else if (nickname.match(/[^a-zA-Z0-9_]/)) {
+    colorfulLog(`Rejecting player ${nickname} - invalid characters`, "warn", "validation");
+    return [true, "Invalid characters."];
+  } else if (colors.length === 0) {
+    colorfulLog(`Rejecting player ${nickname} - game is full`, "warn", "validation");
+    return [true, "The game is full."];
+  } else if (gameState.state === "ended") {
+    colorfulLog(`Rejecting player ${nickname} - game has ended`, "warn", "validation");
+    return [true, "Game has ended."];
+  }
+  return false;
 }
 
 class Player {
