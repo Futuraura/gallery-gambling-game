@@ -74,7 +74,7 @@ function switchScreen(screen) {
   }
 }
 
-function startTimer(endTime, timerElement) {
+function startTimer(endTime, timerElement, includeMilliseconds = true) {
   if (!timerElement) {
     console.error("Timer element not found");
     return;
@@ -84,24 +84,35 @@ function startTimer(endTime, timerElement) {
     clearInterval(timerElement._interval);
   }
 
-  timerElement._interval = setInterval(() => {
-    const now = Date.now();
-    const diff = endTime - now;
+  timerElement._interval = setInterval(
+    () => {
+      const now = Date.now();
+      const diff = endTime - now;
 
-    if (diff <= 0) {
-      timerElement.innerText = "00:00:00";
-      clearInterval(timerElement._interval);
-      return;
-    }
+      if (diff <= 0) {
+        timerElement.innerText = includeMilliseconds ? "00:00:00" : "00:00";
+        clearInterval(timerElement._interval);
+        return;
+      }
 
-    const minutes = Math.floor(diff / 60000);
-    const seconds = Math.floor((diff % 60000) / 1000);
-    const milliseconds = Math.floor((diff % 1000) / 10);
-    timerElement.innerText = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
-      2,
-      "0"
-    )}:${String(milliseconds).padStart(2, "0")}`;
-  }, 10);
+      const minutes = Math.floor(diff / 60000);
+      const seconds = Math.floor((diff % 60000) / 1000);
+      const milliseconds = Math.floor((diff % 1000) / 10);
+
+      if (includeMilliseconds) {
+        timerElement.innerText = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
+          2,
+          "0"
+        )}:${String(milliseconds).padStart(2, "0")}`;
+      } else {
+        timerElement.innerText = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
+          2,
+          "0"
+        )}`;
+      }
+    },
+    includeMilliseconds ? 10 : 1000
+  );
 }
 
 function cancelTimer(timerElement) {
