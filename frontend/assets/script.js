@@ -176,20 +176,30 @@ function initSocket() {
     const playerListPainting = document.getElementById("playerListPainting");
     playerListAuction.innerHTML = "";
     playerListPainting.innerHTML = "";
+    const playerIconSvg = `<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 76 96"
+>
+  <path
+    d="M38.0002 0.666992C58.7279 0.667077 75.5313 17.4699 75.5315 38.1973C75.5315 55.0456 64.4287 69.3002 49.1409 74.0459V87.667C49.1409 92.0853 45.5591 95.667 41.1409 95.667H35.4436C31.0253 95.667 27.4436 92.0853 27.4436 87.667V74.2207C11.8554 69.6603 0.468994 55.2594 0.468994 38.1973C0.469141 17.4698 17.2725 0.666992 38.0002 0.666992Z"
+    fill="#000"
+  />
+</svg>
+`;
     players.forEach((element) => {
       const playerDiv = document.createElement("div");
       playerDiv.classList.add("player");
+
+      playerDiv.appendChild(document.createRange().createContextualFragment(playerIconSvg));
+      const svg = playerDiv.querySelector("svg");
+      const path = svg.querySelector("path");
+      if (path) path.setAttribute("fill", element.color);
 
       const nicknameElement = document.createElement("p");
       nicknameElement.className = "playerNickname";
       nicknameElement.textContent = element.nickname;
 
-      const imgElement = document.createElement("img");
-      imgElement.src = "./assets/img/player.svg";
-      imgElement.style.color = element.color;
-
       playerDiv.appendChild(nicknameElement);
-      playerDiv.appendChild(imgElement);
 
       playerListAuction.appendChild(playerDiv);
       playerListPainting.appendChild(playerDiv.cloneNode(true));
