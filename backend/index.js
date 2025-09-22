@@ -499,9 +499,7 @@ io.on("connection", (socket) => {
 
     try {
       let argObject = JSON.parse(arg);
-      colorfulLog(`Parsed submitPainting object:`, "info", "socket", argObject);
 
-      // Validate base64 data
       if (!argObject.base64 || typeof argObject.base64 !== "string") {
         callback(JSON.stringify({ success: false, reason: "Invalid image data." }));
         return;
@@ -513,15 +511,24 @@ io.on("connection", (socket) => {
       }
 
       let painting = gameState.artwork.find((a) => a.id === argObject.id);
-      if (!painting) {
+      let artist = gameState.players.find((p) => p.socketID === socket.id);
+      if (!artist) {
+        colorfulLog(`Player with socket ID ${socket.id} not found in game state.`, "error", "game");
+        callback(JSON.stringify({ success: false, reason: "Player not found." }));
+        return;
+      } else if (!painting) {
         callback(JSON.stringify({ success: false, reason: "Painting not found." }));
-      } else if (painting.artist === socket.id) {
+      } else if (painting.artist === artist.playerID) {
         painting.base64 = argObject.base64;
-        colorfulLog(`Painting ${argObject.id} submitted by player ${socket.id}`, "info", "game");
+        colorfulLog(
+          `Painting ${argObject.id} submitted by player ${artist.playerID}`,
+          "info",
+          "game"
+        );
         callback(JSON.stringify({ success: true }));
       } else {
         colorfulLog(
-          `Player ${socket.id} attempted to submit painting ${argObject.id} they do not own`,
+          `Player ${artist.playerID} attempted to submit painting ${argObject.id} they do not own`,
           "warn",
           "game"
         );
