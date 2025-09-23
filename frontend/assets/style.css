@@ -468,12 +468,12 @@ Auction sign
   align-self: stretch;
 }
 
-.player img {
+.player svg {
   height: 100%;
   transition: transform 0.2s ease;
 }
 
-.player img.bidCalled {
+.player svg.bidCalled {
   transform: translateY(-210%) scale(1.4);
 }
 
