@@ -144,6 +144,19 @@ function displayCurrentPrompt() {
 */
 
 function initSocket() {
+  socket.on("balanceUpdate", (data) => {
+    let balance = 0;
+    try {
+      balance = JSON.parse(data).balance;
+      loanAmount = JSON.parse(data).loanAmount;
+      maxLoans = JSON.parse(data).maxLoans;
+    } catch (e) {
+      console.error("Invalid balance update:", e);
+    }
+    document.getElementById("currentCredits").innerText = `${balance}$`;
+    document.getElementById("currentDebt").innerText = `${loanAmount}/${maxLoans}`;
+  });
+
   socket.on("auctionHints", (data) => {
     let hints = [];
     try {
