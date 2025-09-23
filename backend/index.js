@@ -1,64 +1,47 @@
-import { Server } from "socket.io";
 import dotenv from "dotenv";
+import { Server } from "socket.io";
 import { createServer } from "http";
 import { v4 } from "uuid";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
 import * as fs from "fs";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 /* TODO:
-- Refactor the whole shit to support multiple rooms
+- Refactor the whole shit show to support multiple rooms
 Maybe databases would be nice?
 
-- !!!!! ADD SOME DAMN COMMENTS HERE !!!
-
 - Add input sanitization, EVERYWHERE.
-- Remove the Hash from the files.
 - Implement rate limiting for incoming connections.
-- Consider using a logging library instead of making a whole function for that.
-
-- Split the whole shit into different files for easier management.
-Maybe redo everything in an MVC or a service-based structure.
-backend/
-  ├── app.js
-  ├── server.js
-  ├── sockets/
-  │     ├── game.js
-  │     └── admin.js
-  ├── models/
-  │     └── player.js
-  ├── utils/
-  │     └── logger.js
-  └── config/
-        └── index.js
-
-- Add the ascii art category names that are present in frontend for easier finding of everything.
-
-- [CODERABBIT] Refactor deeply nested callbacks and extract constants.
-
-  This code segment has become difficult to maintain due to:
-
-  Deeply nested callbacks (4+ levels) creating "callback hell"
-  Magic numbers that should be named constants
-  All game initialization logic crammed into one place
-  Consider:
-
-  Using async/await or Promises to flatten the callback structure
-  Extracting magic numbers to named constants
-  Breaking down the initialization into smaller functions
 */
 
-dotenv.config({ path: ".env", quiet: true });
-const VERSION = process.env.APP_VERSION;
-const MAX_IMAGE_SIZE = process.env.MAX_IMAGE_SIZE_MB
-  ? parseInt(process.env.MAX_IMAGE_SIZE_MB) * 1024 * 1024
-  : 5 * 1024 * 1024;
-const HOST = process.env.HOST;
-const PORT = process.env.PORT;
+dotenv.config({ path: path.join(__dirname, ".env"), quiet: true });
+const CONFIG = {
+  HOST: process.env.HOST,
+  PORT: parseInt(process.env.PORT),
+  MAX_IMAGE_SIZE: parseInt(process.env.MAX_IMAGE_SIZE_MB) * 1024 * 1024,
+  VERSION: process.env.VERSION,
+  MIN_PLAYERS: parseInt(process.env.MIN_PLAYERS),
+  GAME_START_DELAY: parseInt(process.env.GAME_START_DELAY),
+  PAINTING_TIME: parseInt(process.env.PAINTING_TIME),
+  HOST_DIALOGUE_TYPE_SPEED: parseInt(process.env.HOST_DIALOGUE_TYPE_SPEED),
+  HOST_DIALOGUE_MIN_DELAY: parseInt(process.env.HOST_DIALOGUE_MIN_DELAY),
+  AUCTION_HINTS_COUNT: parseInt(process.env.AUCTION_HINTS_COUNT),
+};
 
 console.log(`--------------------------------------------------------`);
-colorfulLog(`App version: ${VERSION}`, "info", "startup");
-colorfulLog(`Max image size: ${MAX_IMAGE_SIZE} bytes`, "info", "startup");
-colorfulLog(`Host: ${HOST}`, "info", "startup");
-colorfulLog(`Port: ${PORT}`, "info", "startup");
+colorfulLog(`App version: ${CONFIG.VERSION}`, "info", "startup");
+colorfulLog(`Max image size: ${CONFIG.MAX_IMAGE_SIZE} bytes`, "info", "startup");
+colorfulLog(`Host: ${CONFIG.HOST}`, "info", "startup");
+colorfulLog(`Port: ${CONFIG.PORT}`, "info", "startup");
+colorfulLog(`Min players to start: ${CONFIG.MIN_PLAYERS}`, "info", "startup");
+colorfulLog(`Game start delay: ${CONFIG.GAME_START_DELAY} seconds`, "info", "startup");
+colorfulLog(`Painting time: ${CONFIG.PAINTING_TIME} seconds`, "info", "startup");
+colorfulLog(`Auction hints count: ${CONFIG.AUCTION_HINTS_COUNT}`, "info", "startup");
+colorfulLog(`Host dialogue type speed: ${CONFIG.HOST_DIALOGUE_TYPE_SPEED} ms`, "info", "startup");
+colorfulLog(`Host dialogue min delay: ${CONFIG.HOST_DIALOGUE_MIN_DELAY} ms`, "info", "startup");
 console.log(`--------------------------------------------------------`);
 
 function colorfulLog(message, mode = "info", department = "general") {
