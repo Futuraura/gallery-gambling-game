@@ -430,6 +430,22 @@ function sendAuctionHintsToPlayers() {
   });
 }
 
+function sendBalanceUpdates() {
+  gameState.players.forEach((player) => {
+    const playerSocket = io.sockets.sockets.get(player.socketID);
+    if (playerSocket) {
+      playerSocket.emit(
+        "balanceUpdate",
+        JSON.stringify({
+          balance: player.balance,
+          loanAmount: player.loans,
+          maxLoans: CONFIG.MAX_ALLOWED_LOANS,
+        })
+      );
+    }
+  });
+}
+
 /*
  /$$$$$$$  /$$                                              
 | $$__  $$| $$                                              
