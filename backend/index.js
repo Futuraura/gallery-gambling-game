@@ -29,6 +29,7 @@ const CONFIG = {
   HOST_DIALOGUE_TYPE_SPEED: parseInt(process.env.HOST_DIALOGUE_TYPE_SPEED),
   HOST_DIALOGUE_MIN_DELAY: parseInt(process.env.HOST_DIALOGUE_MIN_DELAY),
   AUCTION_HINTS_COUNT: parseInt(process.env.AUCTION_HINTS_COUNT),
+  MAX_ALLOWED_LOANS: parseInt(process.env.MAX_ALLOWED_LOANS),
 };
 
 console.log(`--------------------------------------------------------`);
@@ -42,6 +43,7 @@ colorfulLog(`Painting time: ${CONFIG.PAINTING_TIME} seconds`, "info", "startup")
 colorfulLog(`Auction hints count: ${CONFIG.AUCTION_HINTS_COUNT}`, "info", "startup");
 colorfulLog(`Host dialogue type speed: ${CONFIG.HOST_DIALOGUE_TYPE_SPEED} ms`, "info", "startup");
 colorfulLog(`Host dialogue min delay: ${CONFIG.HOST_DIALOGUE_MIN_DELAY} ms`, "info", "startup");
+colorfulLog(`Max allowed loans: ${CONFIG.MAX_ALLOWED_LOANS}`, "info", "startup");
 console.log(`--------------------------------------------------------`);
 
 function colorfulLog(message, mode = "info", department = "general") {
