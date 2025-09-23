@@ -126,6 +126,7 @@ function emitHostDialogueAndAwait(players, texts, typeSpeed, minDelay, onComplet
 */
 
 let gameStartTimer = null;
+let gameStartTimerEnd = null;
 
 colorfulLog("Declaring game variables...", "info", "startup");
 
@@ -316,7 +317,7 @@ class Player {
 function startGameCountdown() {
   colorfulLog("Minimum players reached. Starting game countdown...", "info", "game");
 
-  let gameStartTimerEnd = new Date(Date.now());
+  gameStartTimerEnd = new Date(Date.now());
   gameStartTimerEnd.setSeconds(gameStartTimerEnd.getSeconds() + CONFIG.GAME_START_DELAY);
 
   emitToPlayers(
@@ -391,6 +392,8 @@ function startAuctionPhase() {
       replaceEmptyPaintings();
 
       sendAuctionHintsToPlayers();
+
+      sendBalanceUpdates();
     }
   );
 }
