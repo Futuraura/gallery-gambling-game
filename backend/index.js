@@ -94,13 +94,13 @@ function shuffleArray(array) {
 */
 const dialogueTrackers = new Map();
 
-function emitHostDialogueAndAwait(io, players, texts, typeSpeed, minDelay, onComplete) {
+function emitHostDialogueAndAwait(players, texts, typeSpeed, minDelay, onComplete) {
   const dialogueId = v4();
   const expected = new Set(players.map((p) => p.socketID));
   const responded = new Set();
   dialogueTrackers.set(dialogueId, { expected, responded, callback: onComplete });
 
-  io.emit(
+  emitToPlayers(
     "hostDialogue",
     JSON.stringify({
       dialogueId,
@@ -454,8 +454,8 @@ const io = new Server(httpServer, {
   },
 });
 
-httpServer.listen(PORT, HOST, () => {
-  colorfulLog(`HTTP server listening on ${HOST}:${PORT}`, "info", "startup");
+httpServer.listen(CONFIG.PORT, CONFIG.HOST, () => {
+  colorfulLog(`HTTP server listening on ${CONFIG.HOST}:${CONFIG.PORT}`, "info", "startup");
 });
 
 /*
@@ -500,7 +500,7 @@ io.on("connection", (socket) => {
   socket.on("openConnection", (arg, callback) => {
     callback(
       JSON.stringify({
-        version: VERSION,
+        version: CONFIG.VERSION,
         success: true,
       })
     );
@@ -509,7 +509,6 @@ io.on("connection", (socket) => {
   socket.on("playerJoin", (arg, callback) => {
     colorfulLog(`Received playerJoin request: ${arg}`, "info", "socket");
 
-    /*  Вот такой вот неприятный костыль пока не придумаю норм механику захода. */
     if (gameState.state !== "waiting") {
       colorfulLog("Game already in progress. Rejecting new player.", "warn", "game");
       callback(JSON.stringify({ success: false, reason: "Game already in progress." }));
@@ -519,126 +518,11 @@ io.on("connection", (socket) => {
     try {
       let argObject = JSON.parse(arg);
 
-      /* Проверка ника игрока */
-      let joinValidation = canPlayerJoin(argObject.playerName);
-      if (joinValidation) {
-        callback(JSON.stringify({ success: false, reason: joinValidation[1] }));
-        return;
-      }
-
+      validateAndAddPlayer(argObject, callback, socket);
       colorfulLog(`Processing join request for player: ${argObject.playerName}`, "info", "player");
 
-      gameState.players.push(new Player(socket.id, argObject.playerName));
-      callback(JSON.stringify({ success: true }));
-      io.emit(
-        "playerUpdate",
-        JSON.stringify(
-          gameState.players.map((p) => {
-            return {
-              nickname: p.nickname,
-              color: p.color,
-            };
-          })
-        )
-      );
-      socket.emit("gameStateUpdate", JSON.stringify(gameState.state));
-
-      /* Запуск игры */
-      if (gameState.players.length === 3) {
-        colorfulLog("Minimum players reached. Starting game...", "info", "game");
-
-        /* Создаём таймер и рассылаем всем */
-        let gameStartTimerEnd = new Date(Date.now());
-        gameStartTimerEnd.setSeconds(gameStartTimerEnd.getSeconds() + 10);
-        io.emit(
-          "startGameStartCountdown",
-          JSON.stringify({ endTime: gameStartTimerEnd.getTime() })
-        );
-
-        gameStartTimer = setTimeout(() => {
-          io.emit("resetGameStartCountdown");
-
-          /* Раздаём темы для рисования */
-          dealPrompts();
-
-          /* Начинаем диалог хоста */
-          emitHostDialogueAndAwait(
-            io,
-            gameState.players,
-            [
-              "1",
-              /*"Welcome to this wonderful establishment!",
-                "Here you will learn how to paint, bid, and lose all your money!",
-                "Let's get started with a quick tutorial...",
-                "First, you'll be given two painting prompts.",
-                "Unleash your inner Leonardo Da Vinci and create a masterpiece for each prompt.",
-                "You will be given 90 seconds, because true art cannot be rushed.",
-                "Once the timer ends, the auction will start and your masterpieces will get a random price.",*/
-            ],
-            35,
-            900,
-            () => {
-              gameState.state = "painting";
-              io.emit("gameStateUpdate", JSON.stringify(gameState.state));
-
-              /* Отправляем каждому игроку его темы для рисования */
-              gameState.players.forEach((player) => {
-                const playerSocket = io.sockets.sockets.get(player.socketID);
-
-                const paintingObjectsToBeSent = gameState.artwork
-                  .filter((a) => a.artist === player.playerID)
-                  .map((painting) => ({ id: painting.id, prompt: painting.prompt }));
-
-                playerSocket.emit("updatePaintingPrompts", JSON.stringify(paintingObjectsToBeSent));
-              });
-
-              io.emit("startPaintingTimer", JSON.stringify({ endTime: Date.now() + 90000 }));
-              colorfulLog("Game state updated to 'painting' and broadcasted.", "info", "game");
-              setTimeout(() => {
-                colorfulLog("Painting phase ended. Starting auction phase...", "info", "game");
-                emitHostDialogueAndAwait(
-                  io,
-                  gameState.players,
-                  [
-                    "2",
-                    /*"Time's up! Put down your brushes and step away from your masterpieces.",
-                      "It's time for the auction! Each of your paintings has been assigned a random price.",
-                      "Remember, you cannot bid on your own artwork, so choose wisely.",*/
-                  ],
-                  35,
-                  900,
-                  () => {
-                    gameState.state = "auction";
-                    io.emit("gameStateUpdate", JSON.stringify(gameState.state));
-
-                    /* Проверяем, все ли сдали свои работы */
-                    replaceEmptyPaintings();
-
-                    /* Отправляем каждому игроку 3 подсказки для аукциона */
-                    gameState.players.forEach((player) => {
-                      const otherPaintings = gameState.artwork.filter(
-                        (a) => a.artist !== player.socketID
-                      );
-                      const shuffled = otherPaintings
-                        .map((value) => ({ value, sort: Math.random() }))
-                        .sort((a, b) => a.sort - b.sort)
-                        .map(({ value }) => value);
-                      const hints = shuffled.slice(0, 3).map((painting) => ({
-                        prompt: painting.prompt,
-                        price: painting.price,
-                      }));
-                      const playerSocket = io.sockets.sockets.get(player.socketID);
-                      if (playerSocket) {
-                        playerSocket.emit("auctionHints", JSON.stringify(hints));
-                      }
-                    });
-                  }
-                );
-              }, 90000);
-              gameStartTimer = null;
-            }
-          );
-        }, gameStartTimerEnd.getTime() - Date.now());
+      if (gameState.players.length === CONFIG.MIN_PLAYERS) {
+        startGameCountdown();
       }
     } catch (e) {
       colorfulLog(`Error processing playerJoin request: ${e}`, "error", "socket");
@@ -666,7 +550,7 @@ io.on("connection", (socket) => {
         return;
       }
 
-      if (argObject.base64.length > MAX_IMAGE_SIZE) {
+      if (argObject.base64.length > CONFIG.MAX_IMAGE_SIZE) {
         callback(JSON.stringify({ success: false, reason: "Image too large." }));
         return;
       }
