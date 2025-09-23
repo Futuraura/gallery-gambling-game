@@ -181,7 +181,7 @@ function dealPrompts() {
 }
 
 function replaceEmptyPaintings() {
-  didHaveEmpty = false;
+  let didHaveEmpty = false;
 
   for (let painting of gameState.artwork) {
     if (!painting.base64 || painting.base64.length === 0) {
