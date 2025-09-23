@@ -164,6 +164,7 @@ function dealPrompts() {
     gameState.artwork.push({
       id: prompt1.id,
       prompt: prompt1.text,
+      replacement: prompt1.image,
       artist: gameState.players[i].playerID,
       price: Math.max(400, Math.round((Math.random() * 4000) / 100) * 100),
       base64: "",
@@ -171,6 +172,7 @@ function dealPrompts() {
     gameState.artwork.push({
       id: prompt2.id,
       prompt: prompt2.text,
+      replacement: prompt2.image,
       artist: gameState.players[(i + 1) % gameState.players.length].playerID,
       price: Math.max(400, Math.round((Math.random() * 4000) / 100) * 100),
       base64: "",
