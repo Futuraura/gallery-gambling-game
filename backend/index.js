@@ -211,27 +211,64 @@ function replaceEmptyPaintings() {
   }
 }
 
-function canPlayerJoin(nickname) {
-  if (nickname === "admin") {
+function validateAndAddPlayer(arg, callback, socket) {
+  const nickname = arg.playerName;
+  const blockedNames = ["admin", "moderator", "mod", "host", "system"];
+
+  if (!nickname) {
+    colorfulLog(`Rejecting player ${nickname} - no name provided`, "warn", "validation");
+    callback(JSON.stringify({ success: false, reason: "No name provided." }));
+    return;
+  } else if (blockedNames.includes(nickname.toLowerCase())) {
     colorfulLog(`Rejecting player ${nickname} - name not allowed`, "warn", "validation");
-    return [true, "Name not allowed."];
+    callback(JSON.stringify({ success: false, reason: "Name not allowed." }));
+    return;
   } else if (gameState.players.find((p) => p.nickname === nickname)) {
     colorfulLog(`Rejecting player ${nickname} - name already taken`, "warn", "validation");
-    return [true, "Name already taken."];
+    callback(JSON.stringify({ success: false, reason: "Name already taken." }));
+    return;
   } else if (nickname.length < 3 || nickname.length > 16) {
     colorfulLog(`Rejecting player ${nickname} - invalid name length`, "warn", "validation");
-    return [true, "Invalid name length."];
+    callback(JSON.stringify({ success: false, reason: "Invalid name length." }));
+    return;
   } else if (nickname.match(/[^a-zA-Z0-9_]/)) {
     colorfulLog(`Rejecting player ${nickname} - invalid characters`, "warn", "validation");
-    return [true, "Invalid characters."];
+    callback(JSON.stringify({ success: false, reason: "Invalid characters." }));
+    return;
   } else if (colors.length === 0) {
     colorfulLog(`Rejecting player ${nickname} - game is full`, "warn", "validation");
-    return [true, "The game is full."];
+    callback(JSON.stringify({ success: false, reason: "The game is full." }));
+    return;
   } else if (gameState.state === "ended") {
     colorfulLog(`Rejecting player ${nickname} - game has ended`, "warn", "validation");
-    return [true, "Game has ended."];
+    callback(JSON.stringify({ success: false, reason: "Game has ended." }));
+    return;
   }
-  return false;
+
+  /* Если всё ок, добавляем игрока */
+  gameState.players.push(new Player(socket.id, nickname));
+  callback(JSON.stringify({ success: true }));
+  emitToPlayers(
+    "playerUpdate",
+    JSON.stringify(
+      gameState.players.map((p) => {
+        return {
+          nickname: p.nickname,
+          color: p.color,
+        };
+      })
+    )
+  );
+  socket.emit("gameStateUpdate", JSON.stringify(gameState.state));
+}
+
+function emitToPlayers(event, data) {
+  gameState.players.forEach((player) => {
+    const playerSocket = io.sockets.sockets.get(player.socketID);
+    if (playerSocket) {
+      playerSocket.emit(event, data);
+    }
+  });
 }
 
 class Player {
@@ -262,6 +299,142 @@ class Player {
     );
   }
 }
+
+/*
+  /$$$$$$                                          /$$$$$$$  /$$                                              
+ /$$__  $$                                        | $$__  $$| $$                                              
+| $$  \__/  /$$$$$$  /$$$$$$/$$$$   /$$$$$$       | $$  \ $$| $$$$$$$   /$$$$$$   /$$$$$$$  /$$$$$$   /$$$$$$$
+| $$ /$$$$ |____  $$| $$_  $$_  $$ /$$__  $$      | $$$$$$$/| $$__  $$ |____  $$ /$$_____/ /$$__  $$ /$$_____/
+| $$|_  $$  /$$$$$$$| $$ \ $$ \ $$| $$$$$$$$      | $$____/ | $$  \ $$  /$$$$$$$|  $$$$$$ | $$$$$$$$|  $$$$$$ 
+| $$  \ $$ /$$__  $$| $$ | $$ | $$| $$_____/      | $$      | $$  | $$ /$$__  $$ \____  $$| $$_____/ \____  $$
+|  $$$$$$/|  $$$$$$$| $$ | $$ | $$|  $$$$$$$      | $$      | $$  | $$|  $$$$$$$ /$$$$$$$/|  $$$$$$$ /$$$$$$$/
+ \______/  \_______/|__/ |__/ |__/ \_______/      |__/      |__/  |__/ \_______/|_______/  \_______/|_______/ 
+*/
+
+function startGameCountdown() {
+  colorfulLog("Minimum players reached. Starting game countdown...", "info", "game");
+
+  let gameStartTimerEnd = new Date(Date.now());
+  gameStartTimerEnd.setSeconds(gameStartTimerEnd.getSeconds() + CONFIG.GAME_START_DELAY);
+
+  emitToPlayers(
+    "startGameStartCountdown",
+    JSON.stringify({ endTime: gameStartTimerEnd.getTime() })
+  );
+
+  gameStartTimer = setTimeout(() => {
+    emitToPlayers("resetGameStartCountdown");
+    startPaintingPhase();
+  }, gameStartTimerEnd.getTime() - Date.now());
+}
+
+function startPaintingPhase() {
+  colorfulLog("Starting painting phase...", "info", "game");
+
+  dealPrompts();
+
+  emitHostDialogueAndAwait(
+    gameState.players,
+    [
+      "1",
+      /*"Welcome to this wonderful establishment!",
+        "Here you will learn how to paint, bid, and lose all your money!",
+        "Let's get started with a quick tutorial...",
+        "First, you'll be given two painting prompts.",
+        "Unleash your inner Leonardo Da Vinci and create a masterpiece for each prompt.",
+        "You will be given 90 seconds, because true art cannot be rushed.",
+        "Once the timer ends, the auction will start and your masterpieces will get a random price.",*/
+    ],
+    CONFIG.HOST_DIALOGUE_TYPE_SPEED,
+    CONFIG.HOST_DIALOGUE_MIN_DELAY,
+    () => {
+      // Update game state
+      gameState.state = "painting";
+      emitToPlayers("gameStateUpdate", JSON.stringify(gameState.state));
+
+      sendPaintingPromptsToPlayers();
+
+      emitToPlayers(
+        "startPaintingTimer",
+        JSON.stringify({ endTime: Date.now() + CONFIG.PAINTING_TIME * 1000 })
+      );
+      colorfulLog("Game state updated to 'painting' and broadcasted.", "info", "game");
+
+      setTimeout(() => {
+        startAuctionPhase();
+      }, CONFIG.PAINTING_TIME * 1000);
+
+      gameStartTimer = null;
+    }
+  );
+}
+
+function startAuctionPhase() {
+  colorfulLog("Painting phase ended. Starting auction phase...", "info", "game");
+
+  emitHostDialogueAndAwait(
+    gameState.players,
+    [
+      "2",
+      /*"Time's up! Put down your brushes and step away from your masterpieces.",
+        "It's time for the auction! Each of your paintings has been assigned a random price.",
+        "Remember, you cannot bid on your own artwork, so choose wisely.",*/
+    ],
+    CONFIG.HOST_DIALOGUE_TYPE_SPEED,
+    CONFIG.HOST_DIALOGUE_MIN_DELAY,
+    () => {
+      gameState.state = "auction";
+      emitToPlayers("gameStateUpdate", JSON.stringify(gameState.state));
+
+      replaceEmptyPaintings();
+
+      sendAuctionHintsToPlayers();
+    }
+  );
+}
+
+function sendPaintingPromptsToPlayers() {
+  gameState.players.forEach((player) => {
+    const playerSocket = io.sockets.sockets.get(player.socketID);
+    if (playerSocket) {
+      playerSocket.emit(
+        "updatePaintingPrompts",
+        JSON.stringify(
+          gameState.artwork
+            .filter((a) => a.artist === player.playerID)
+            .map((painting) => ({ id: painting.id, prompt: painting.prompt }))
+        )
+      );
+    }
+  });
+}
+
+function sendAuctionHintsToPlayers() {
+  gameState.players.forEach((player) => {
+    const hints = shuffleArray(gameState.artwork.filter((a) => a.artist !== player.socketID))
+      .slice(0, CONFIG.AUCTION_HINTS_COUNT)
+      .map((painting) => ({
+        prompt: painting.prompt,
+        price: painting.price,
+      }));
+
+    const playerSocket = io.sockets.sockets.get(player.socketID);
+    if (playerSocket) {
+      playerSocket.emit("auctionHints", JSON.stringify(hints));
+    }
+  });
+}
+
+/*
+ /$$$$$$$  /$$                                              
+| $$__  $$| $$                                              
+| $$  \ $$| $$$$$$$   /$$$$$$   /$$$$$$$  /$$$$$$   /$$$$$$$
+| $$$$$$$/| $$__  $$ |____  $$ /$$_____/ /$$__  $$ /$$_____/
+| $$____/ | $$  \ $$  /$$$$$$$|  $$$$$$ | $$$$$$$$|  $$$$$$ 
+| $$      | $$  | $$ /$$__  $$ \____  $$| $$_____/ \____  $$
+| $$      | $$  | $$|  $$$$$$$ /$$$$$$$/|  $$$$$$$ /$$$$$$$/
+|__/      |__/  |__/ \_______/|_______/  \_______/|_______/ 
+*/
 
 /*
  /$$   /$$ /$$$$$$$$ /$$$$$$$$ /$$$$$$$        /$$           /$$   /$$    
