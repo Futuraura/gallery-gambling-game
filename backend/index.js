@@ -139,7 +139,7 @@ let paintingPrompts;
 function dealPrompts() {
   try {
     paintingPrompts = shuffleArray(
-      JSON.parse(fs.readFileSync("jackboxPrompts/prompts.json", "utf-8"))
+      JSON.parse(fs.readFileSync(path.join(__dirname, "jackboxPrompts/prompts.json"), "utf-8"))
     );
     colorfulLog(
       `Loaded painting prompts from prompts.json. ${paintingPrompts.length} prompt categories available.`,
@@ -188,7 +188,10 @@ function replaceEmptyPaintings() {
         "warn",
         "game"
       );
-      painting.base64 = fs.readFileSync(`jackboxPrompts/placeholders/${painting.id}.png`, "utf-8");
+      painting.base64 = fs.readFileSync(
+        path.join(__dirname, `jackboxPrompts/${painting.replacement}`),
+        "utf-8"
+      );
       didHaveEmpty = true;
     }
   }
