@@ -30,6 +30,10 @@ const CONFIG = {
   HOST_DIALOGUE_MIN_DELAY: parseInt(process.env.HOST_DIALOGUE_MIN_DELAY),
   AUCTION_HINTS_COUNT: parseInt(process.env.AUCTION_HINTS_COUNT),
   MAX_ALLOWED_LOANS: parseInt(process.env.MAX_ALLOWED_LOANS),
+  AUCTION_COUNTDOWN_TOTAL: 10000,
+  AUCTION_COUNTDOWN_OPEN: 3000,
+  AUCTION_BID_COOLDOWN: 500,
+  AUCTION_MIN_BID_INCREMENT: 100,
 };
 
 console.log(`--------------------------------------------------------`);
