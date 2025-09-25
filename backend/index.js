@@ -137,9 +137,20 @@ colorfulLog("Declaring game variables...", "info", "startup");
 let colors = ["red", "blue", "green", "orange", "purple", "yellow", "gray"];
 
 let gameState = {
-  state: "waiting", // waiting, painting, auction, bank, ended
+  state: "waiting",
   artwork: [],
   players: [],
+  auction: {
+    currentLotIndex: 0,
+    currentBid: 0,
+    currentBidder: null,
+    countdownTimer: null,
+    countdownEndTime: null,
+    isCountdownOpen: false,
+    bidCooldownEndTime: 0,
+    hasFirstBid: false,
+    isActive: false,
+  },
 };
 
 let paintingPrompts;
@@ -355,7 +366,6 @@ function startPaintingPhase() {
     CONFIG.HOST_DIALOGUE_TYPE_SPEED,
     CONFIG.HOST_DIALOGUE_MIN_DELAY,
     () => {
-      // Update game state
       gameState.state = "painting";
       emitToPlayers("gameStateUpdate", JSON.stringify(gameState.state));
 
