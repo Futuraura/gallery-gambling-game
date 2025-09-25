@@ -825,6 +825,91 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("placeBid", (arg, callback) => {
+    colorfulLog(`Received placeBid request: ${arg}`, "info", "socket");
+
+    if (gameState.state !== "auction" || !gameState.auction.isActive) {
+      callback(JSON.stringify({ success: false, reason: "Auction is not active." }));
+      return;
+    }
+
+    if (Date.now() < gameState.auction.bidCooldownEndTime) {
+      callback(JSON.stringify({ success: false, reason: "Bid cooldown in effect. Please wait." }));
+      return;
+    }
+
+    try {
+      let argObject = JSON.parse(arg);
+      const bidAmount = parseInt(argObject.bidAmount);
+
+      if (isNaN(bidAmount) || bidAmount <= 0) {
+        callback(JSON.stringify({ success: false, reason: "Invalid bid amount." }));
+        return;
+      }
+
+      const player = gameState.players.find((p) => p.socketID === socket.id);
+      if (!player) {
+        callback(JSON.stringify({ success: false, reason: "Player not found." }));
+        return;
+      }
+
+      const currentLot = gameState.artwork[gameState.auction.currentLotIndex];
+
+      const minBid = gameState.auction.currentBid + CONFIG.AUCTION_MIN_BID_INCREMENT;
+      if (bidAmount < minBid) {
+        callback(
+          JSON.stringify({
+            success: false,
+            reason: `Bid must be at least $${minBid}.`,
+          })
+        );
+        return;
+      }
+
+      if (gameState.auction.currentBidder === socket.id) {
+        callback(JSON.stringify({ success: false, reason: "You are already the highest bidder." }));
+        return;
+      }
+
+      if (player.balance < bidAmount) {
+        callback(JSON.stringify({ success: false, reason: "Insufficient balance." }));
+        return;
+      }
+
+      gameState.auction.currentBid = bidAmount;
+      gameState.auction.currentBidder = socket.id;
+      gameState.auction.bidCooldownEndTime = Date.now() + CONFIG.AUCTION_BID_COOLDOWN;
+
+      colorfulLog(
+        `${player.nickname} bid $${bidAmount} on lot ${gameState.auction.currentLotIndex + 1}`,
+        "info",
+        "auction"
+      );
+
+      if (!gameState.auction.hasFirstBid) {
+        gameState.auction.hasFirstBid = true;
+        startAuctionCountdown();
+      } else {
+        resetAuctionCountdown();
+      }
+
+      emitToPlayers(
+        "auctionBidUpdate",
+        JSON.stringify({
+          lotIndex: gameState.auction.currentLotIndex,
+          currentBid: gameState.auction.currentBid,
+          currentBidder: player.nickname,
+          currentBidderId: socket.id,
+        })
+      );
+
+      callback(JSON.stringify({ success: true }));
+    } catch (e) {
+      colorfulLog(`Error processing placeBid request: ${e}`, "error", "socket");
+      callback(JSON.stringify({ success: false, reason: "Invalid request format." }));
+    }
+  });
+
   socket.on("disconnect", (reason) => {
     colorfulLog(`Client ${socket.id} disconnected. Reason: ${reason}`, "info", "connection");
 
