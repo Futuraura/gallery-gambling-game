@@ -147,14 +147,20 @@ function initSocket() {
   socket.on("balanceUpdate", (data) => {
     let balance = 0;
     try {
-      balance = JSON.parse(data).balance;
-      loanAmount = JSON.parse(data).loanAmount;
-      maxLoans = JSON.parse(data).maxLoans;
+      const balanceData = JSON.parse(data);
+      balance = balanceData.balance;
+      loanAmount = balanceData.loanAmount;
+      maxLoans = balanceData.maxLoans;
+      playerBalance = balance;
     } catch (e) {
       console.error("Invalid balance update:", e);
     }
     document.getElementById("currentCredits").innerText = `${balance}$`;
     document.getElementById("currentDebt").innerText = `${loanAmount}/${maxLoans}`;
+
+    if (currentLotData) {
+      updateBidButtons(currentLotData.currentBid || 300);
+    }
   });
 
   socket.on("auctionHints", (data) => {
@@ -328,6 +334,46 @@ function initSocket() {
 
   socket.on("disconnect", () => {
     throwError("0x001", "Disconnected from server.");
+  });
+
+  socket.on("auctionNewLot", (data) => {
+    let obj = JSON.parse(data);
+    displayNewAuctionLot(obj);
+  });
+
+  socket.on("auctionBidUpdate", (data) => {
+    let obj = JSON.parse(data);
+    updateCurrentBid(obj);
+  });
+
+  socket.on("auctionCountdown", (data) => {
+    let obj = JSON.parse(data);
+    updateAuctionCountdown(obj);
+  });
+
+  socket.on("auctionLotResult", (data) => {
+    let obj = JSON.parse(data);
+    displayLotResult(obj);
+  });
+
+  socket.on("auctionComplete", (data) => {
+    let obj = JSON.parse(data);
+    displayFinalResults(obj);
+  });
+
+  socket.on("auctionCountdown", (data) => {
+    let obj = JSON.parse(data);
+    updateAuctionCountdown(obj);
+  });
+
+  socket.on("auctionLotResult", (data) => {
+    let obj = JSON.parse(data);
+    displayLotResult(obj);
+  });
+
+  socket.on("auctionComplete", (data) => {
+    let obj = JSON.parse(data);
+    displayFinalResults(obj);
   });
 
   document.getElementById("startMenuStartButton").addEventListener("click", (e) => {
