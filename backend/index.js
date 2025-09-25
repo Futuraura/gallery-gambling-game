@@ -404,12 +404,90 @@ function startAuctionPhase() {
       emitToPlayers("gameStateUpdate", JSON.stringify(gameState.state));
 
       replaceEmptyPaintings();
+      shuffleArray(gameState.artwork);
 
       sendAuctionHintsToPlayers();
-
       sendBalanceUpdates();
+
+      gameState.auction.currentLotIndex = 0;
+      gameState.auction.isActive = true;
+
+      setTimeout(() => {
+        startNextAuctionLot();
+      }, 2000);
     }
   );
+}
+
+function startNextAuctionLot() {
+  if (gameState.auction.currentLotIndex >= gameState.artwork.length) {
+    endAuctionPhase();
+    return;
+  }
+
+  const currentLot = gameState.artwork[gameState.auction.currentLotIndex];
+
+  gameState.auction.currentBid = 300;
+  gameState.auction.currentBidder = null;
+  gameState.auction.hasFirstBid = false;
+  gameState.auction.bidCooldownEndTime = 0;
+
+  colorfulLog(
+    `Starting auction for lot ${gameState.auction.currentLotIndex + 1}/${
+      gameState.artwork.length
+    }: ${currentLot.prompt}`,
+    "info",
+    "auction"
+  );
+
+  emitToPlayers(
+    "auctionNewLot",
+    JSON.stringify({
+      lotIndex: gameState.auction.currentLotIndex,
+      totalLots: gameState.artwork.length,
+      artwork: {
+        id: currentLot.id,
+        base64: currentLot.base64,
+      },
+      startingBid: gameState.auction.currentBid,
+      currentBid: gameState.auction.currentBid,
+      currentBidder: null,
+    })
+  );
+}
+
+function endAuctionPhase() {
+  gameState.auction.isActive = false;
+
+  if (gameState.auction.countdownTimer) {
+    clearTimeout(gameState.auction.countdownTimer);
+    gameState.auction.countdownTimer = null;
+  }
+
+  colorfulLog("Auction phase completed. All lots have been sold.", "info", "auction");
+
+  const finalScores = gameState.players
+    .map((player) => ({
+      nickname: player.nickname,
+      balance: player.balance,
+      loans: player.loans,
+      finalScore: player.balance - player.loans * 1.5,
+      color: player.color,
+    }))
+    .sort((a, b) => b.finalScore - a.finalScore);
+
+  emitToPlayers(
+    "auctionComplete",
+    JSON.stringify({
+      finalScores: finalScores,
+      winner: finalScores[0],
+    })
+  );
+
+  setTimeout(() => {
+    gameState.state = "ended";
+    emitToPlayers("gameStateUpdate", JSON.stringify(gameState.state));
+  }, 5000);
 }
 
 function sendPaintingPromptsToPlayers() {
