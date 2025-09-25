@@ -538,6 +538,126 @@ function sendBalanceUpdates() {
   });
 }
 
+function startAuctionCountdown() {
+  if (gameState.auction.countdownTimer) {
+    clearTimeout(gameState.auction.countdownTimer);
+  }
+
+  gameState.auction.countdownEndTime = Date.now() + CONFIG.AUCTION_COUNTDOWN_TOTAL;
+  gameState.auction.isCountdownOpen = false;
+
+  emitToPlayers(
+    "auctionCountdown",
+    JSON.stringify({
+      endTime: gameState.auction.countdownEndTime,
+      isOpen: false,
+      timeRemaining: CONFIG.AUCTION_COUNTDOWN_TOTAL,
+    })
+  );
+
+  const openCountdownDelay = CONFIG.AUCTION_COUNTDOWN_TOTAL - CONFIG.AUCTION_COUNTDOWN_OPEN;
+
+  setTimeout(() => {
+    if (gameState.auction.isActive && gameState.auction.countdownEndTime > Date.now()) {
+      gameState.auction.isCountdownOpen = true;
+      emitToPlayers(
+        "auctionCountdown",
+        JSON.stringify({
+          endTime: gameState.auction.countdownEndTime,
+          isOpen: true,
+          timeRemaining: CONFIG.AUCTION_COUNTDOWN_OPEN,
+        })
+      );
+    }
+  }, openCountdownDelay);
+
+  gameState.auction.countdownTimer = setTimeout(() => {
+    if (gameState.auction.isActive) {
+      auctionLotComplete();
+    }
+  }, CONFIG.AUCTION_COUNTDOWN_TOTAL);
+}
+
+function resetAuctionCountdown() {
+  if (gameState.auction.countdownTimer) {
+    clearTimeout(gameState.auction.countdownTimer);
+    gameState.auction.countdownTimer = null;
+  }
+
+  startAuctionCountdown();
+}
+
+function auctionLotComplete() {
+  const currentLot = gameState.artwork[gameState.auction.currentLotIndex];
+  let winner = null;
+  let profit = 0;
+  let isOwnArtwork = false;
+
+  if (gameState.auction.currentBidder) {
+    winner = gameState.players.find((p) => p.socketID === gameState.auction.currentBidder);
+    if (winner) {
+      winner.balance -= gameState.auction.currentBid;
+
+      isOwnArtwork = currentLot.artist === winner.playerID;
+
+      if (isOwnArtwork) {
+        profit = 0;
+        colorfulLog(
+          `Lot ${gameState.auction.currentLotIndex + 1} sold to ${winner.nickname} for $${
+            gameState.auction.currentBid
+          } (own artwork - money burned)`,
+          "info",
+          "auction"
+        );
+      } else {
+        profit = currentLot.price - gameState.auction.currentBid;
+        colorfulLog(
+          `Lot ${gameState.auction.currentLotIndex + 1} sold to ${winner.nickname} for $${
+            gameState.auction.currentBid
+          }`,
+          "info",
+          "auction"
+        );
+      }
+    }
+  } else {
+    colorfulLog(
+      `Lot ${gameState.auction.currentLotIndex + 1} ended with no bids`,
+      "info",
+      "auction"
+    );
+  }
+
+  emitToPlayers(
+    "auctionLotResult",
+    JSON.stringify({
+      lotIndex: gameState.auction.currentLotIndex,
+      finalBid: gameState.auction.currentBid,
+      winner: winner ? winner.nickname : null,
+      winnerId: winner ? winner.socketID : null,
+      trueValue: currentLot.price,
+      profit: profit,
+      isOwnArtwork: isOwnArtwork,
+      artwork: {
+        id: currentLot.id,
+        prompt: currentLot.prompt,
+        base64: currentLot.base64,
+      },
+    })
+  );
+
+  sendBalanceUpdates();
+
+  setTimeout(() => {
+    gameState.auction.currentLotIndex++;
+    if (gameState.auction.currentLotIndex >= gameState.artwork.length) {
+      endAuctionPhase();
+    } else {
+      startNextAuctionLot();
+    }
+  }, 5000);
+}
+
 /*
  /$$$$$$$  /$$                                              
 | $$__  $$| $$                                              
