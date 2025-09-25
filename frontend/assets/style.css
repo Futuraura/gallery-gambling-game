@@ -1078,6 +1078,58 @@ Auction sign
   object-fit: contain;
 }
 
+.countdownOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.countdownNumber {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10em;
+  font-weight: bold;
+  color: rgba(255, 0, 0, 0.5);
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+  animation: countdownFlyIn 1s ease-out;
+  pointer-events: none;
+}
+
+/* Maybe redo the animation to be more of a "drop" effect? */
+@keyframes countdownFlyIn {
+  0% {
+    transform: translate(-50%, -50%) scale(0.1);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.7;
+  }
+}
+
+#bidButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+#currentBidder {
+  font-size: 0.9em;
+  color: #27ae60;
+  margin-top: 10px;
+}
+
 .bidControlling {
   display: flex;
   flex-direction: column;
