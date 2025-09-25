@@ -30,10 +30,6 @@
       </div>
     </div>
 
-    <div class="auctionSign">
-      <p>Lot<br />1/12</p>
-    </div>
-
     <div class="hostIntermission" id="hostIntermissionDiv">
       <img src="./assets/img/host.png" alt="Host image" class="hostImage" />
       <span id="hostDialogueText"></span>
@@ -103,32 +99,33 @@
       <button class="loanButton">Take a loan at 50% interest</button>
     </div>
 
+    <div class="auctionSign">
+      <p id="auctionSignText">Lot<br />--/--</p>
+    </div>
+
     <div class="auctionDiv" id="auctionDiv">
-      <div>
-        <div class="leftPart">
-          <div class="auctionCanvas">
-            <img id="currentAuctionCanvas" />
-          </div>
-          <div class="bidControlling">
-            <p>Current bid:<br /><span>1500$</span></p>
-            <button class="bidButton">1600$</button>
-            <button class="bidButton">1700$</button>
-            <button class="bidButton">1800$</button>
+      <div class="countdownOverlay" id="countdownOverlay"></div>
+      <div class="leftPart">
+        <div class="auctionCanvas">
+          <img id="currentAuctionCanvas" />
+        </div>
+        <div class="bidControlling">
+          <p id="currentBidText">Current bid:<br /><span id="currentBidAmount">$300</span></p>
+          <div id="bidButtons">
+            <button class="bidButton" id="bidButton1">$400</button>
+            <button class="bidButton" id="bidButton2">$500</button>
+            <button class="bidButton" id="bidButton3">$600</button>
           </div>
         </div>
-        <div class="lists">
-          <div class="hintsList">
-            <p class="artHint">A duck is worth 1500$</p>
-            <p class="artHint">Evening is worth 400$</p>
-            <p class="artHint">Overlord is worth 4800$</p>
-          </div>
-          <div class="balanceStatus">
-            <p>
-              Credits left: <span id="currentCredits">2500$</span>
-              <br />
-              Current debt: (<span id="currentDebt">1</span>)
-            </p>
-          </div>
+      </div>
+      <div class="lists">
+        <div class="hintsList"></div>
+        <div class="balanceStatus">
+          <p>
+            Credits left: <span id="currentCredits">3000$</span>
+            <br />
+            Current debt: (<span id="currentDebt">0/3</span>)
+          </p>
         </div>
       </div>
       <div class="playerList" id="playerListAuction"></div>
