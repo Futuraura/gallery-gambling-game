@@ -861,6 +861,243 @@ submitPaintingButton.addEventListener("click", () => {
 });
 
 /*
+ /$$      /$$           /$$                  /$$$$$$                        /$$     /$$                    
+| $$$    /$$$          |__/                 /$$__  $$                      | $$    |__/                    
+| $$$$  /$$$$  /$$$$$$  /$$ /$$$$$$$       | $$  \ $$ /$$   /$$  /$$$$$$$ /$$$$$$   /$$  /$$$$$$  /$$$$$$$ 
+| $$ $$/$$ $$ |____  $$| $$| $$__  $$      | $$$$$$$$| $$  | $$ /$$_____/|_  $$_/  | $$ /$$__  $$| $$__  $$
+| $$  $$$| $$  /$$$$$$$| $$| $$  \ $$      | $$__  $$| $$  | $$| $$        | $$    | $$| $$  \ $$| $$  \ $$
+| $$\  $ | $$ /$$__  $$| $$| $$  | $$      | $$  | $$| $$  | $$| $$        | $$ /$$| $$| $$  | $$| $$  | $$
+| $$ \/  | $$|  $$$$$$$| $$| $$  | $$      | $$  | $$|  $$$$$$/|  $$$$$$$  |  $$$$/| $$|  $$$$$$/| $$  | $$
+|__/     |__/ \_______/|__/|__/  |__/      |__/  |__/ \______/  \_______/   \___/  |__/ \______/ |__/  |__/
+*/
+
+let currentLotData = null;
+let countdownInterval = null;
+let playerBalance = 3000;
+let bidCooldownActive = false;
+
+function displayNewAuctionLot(lotData) {
+  currentLotData = lotData;
+
+  document.getElementById("auctionSignText").innerHTML = `Lot<br />${lotData.lotIndex + 1}/${
+    lotData.totalLots
+  }`;
+  triggerAuctionSignFly();
+
+  const canvas = document.getElementById("currentAuctionCanvas");
+
+  /* TODO: Fix later, the image is broken and is not showing. Might be due to wrong file format in png or base64 string is broken */
+  canvas.src = `data:image/png;base64,${lotData.artwork.base64}`;
+
+  document.getElementById("currentBidAmount").textContent = `${lotData.currentBid}$`;
+
+  updateBidButtons(lotData.currentBid);
+}
+
+function updateCurrentBid(bidData) {
+  if (currentLotData && bidData.lotIndex === currentLotData.lotIndex) {
+    currentLotData.currentBid = bidData.currentBid;
+
+    document.getElementById("currentBidAmount").textContent = `${bidData.currentBid}$`;
+
+    if (!bidCooldownActive) {
+      updateBidButtons(bidData.currentBid);
+    }
+  }
+}
+
+function updateBidButtons(currentBid) {
+  const button1 = document.getElementById("bidButton1");
+  const button2 = document.getElementById("bidButton2");
+  const button3 = document.getElementById("bidButton3");
+
+  const nextBids = [currentBid + 100, currentBid + 200, currentBid + 300];
+
+  const buttons = [button1, button2, button3];
+
+  buttons.forEach((btn) => (btn.style.display = "none"));
+
+  let visibleButtons = 0;
+  for (let i = 0; i < nextBids.length; i++) {
+    if (nextBids[i] <= playerBalance) {
+      buttons[i].textContent = `$${nextBids[i]}`;
+      buttons[i].style.display = "block";
+      buttons[i].onclick = () => {
+        console.log("Button clicked for bid:", nextBids[i]);
+        placeBid(nextBids[i]);
+      };
+      visibleButtons++;
+    }
+  }
+
+  if (visibleButtons === 0) {
+    button1.textContent = "Insufficient funds";
+    button1.style.display = "block";
+    button1.onclick = null;
+    button1.disabled = true;
+  } else {
+    buttons.forEach((btn) => (btn.disabled = false));
+  }
+}
+
+let lastCountdownNumber = null;
+
+function updateAuctionCountdown(countdownData) {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+
+  lastCountdownNumber = null;
+
+  if (countdownData.isOpen) {
+    countdownInterval = setInterval(() => {
+      const remaining = Math.max(0, Math.ceil((countdownData.endTime - Date.now()) / 1000));
+
+      if (remaining <= 3 && remaining > 0) {
+        if (lastCountdownNumber !== remaining) {
+          showCountdownNumber(remaining);
+          lastCountdownNumber = remaining;
+        }
+      } else if (remaining === 0 && lastCountdownNumber !== "SOLD") {
+        showCountdownNumber("SOLD");
+        lastCountdownNumber = "SOLD";
+        clearInterval(countdownInterval);
+      }
+    }, 100);
+  }
+}
+
+function showCountdownNumber(number) {
+  const existing = document.querySelectorAll(".countdownNumber");
+  existing.forEach((el) => el.remove());
+
+  const countdownEl = document.createElement("div");
+  countdownEl.className = "countdownNumber";
+  countdownEl.textContent = number;
+
+  document.getElementById("countdownOverlay").appendChild(countdownEl);
+
+  setTimeout(() => {
+    countdownEl.remove();
+  }, 1000);
+}
+
+function placeBid(amount) {
+  console.log("placeBid called with amount:", amount);
+
+  if (bidCooldownActive) {
+    console.log("Bid blocked - cooldown active");
+    return;
+  }
+
+  if (amount > playerBalance) {
+    Toastify({
+      text: "Insufficient balance!",
+      duration: 3000,
+      gravity: "bottom",
+      position: "right",
+      style: {
+        background: "linear-gradient(to right, #ff0000, #c0392b)",
+      },
+    }).showToast();
+    return;
+  }
+
+  socket.emit("placeBid", JSON.stringify({ bidAmount: amount }), (response) => {
+    const result = JSON.parse(response);
+    if (!result.success) {
+      Toastify({
+        text: result.reason,
+        duration: 3000,
+        gravity: "bottom",
+        position: "right",
+        style: {
+          background: "linear-gradient(to right, #ff0000, #c0392b)",
+        },
+      }).showToast();
+    } else {
+      startBidCooldown();
+    }
+  });
+}
+
+function startBidCooldown() {
+  bidCooldownActive = true;
+
+  const buttons = [
+    document.getElementById("bidButton1"),
+    document.getElementById("bidButton2"),
+    document.getElementById("bidButton3"),
+  ];
+
+  buttons.forEach((btn) => {
+    btn.style.opacity = "0.5";
+    btn.style.pointerEvents = "none";
+  });
+
+  setTimeout(() => {
+    bidCooldownActive = false;
+    buttons.forEach((btn) => {
+      btn.style.opacity = "1";
+      btn.style.pointerEvents = "auto";
+    });
+
+    if (currentLotData) {
+      updateBidButtons(currentLotData.currentBid || 300);
+    }
+  }, 500);
+}
+
+function displayLotResult(resultData) {
+  let resultText;
+  let backgroundStyle;
+
+  if (resultData.winner) {
+    if (resultData.isOwnArtwork) {
+      resultText = `Lot ${resultData.lotIndex + 1} sold to ${resultData.winner} for $${
+        resultData.finalBid
+      }! (Own artwork - money burned)`;
+      backgroundStyle = "linear-gradient(to right, #9b59b6, #8e44ad)";
+    } else {
+      resultText = `Lot ${resultData.lotIndex + 1} sold to ${resultData.winner} for $${
+        resultData.finalBid
+      }! True value: $${resultData.trueValue} (${resultData.profit >= 0 ? "+" : ""}$${
+        resultData.profit
+      })`;
+      backgroundStyle =
+        resultData.profit >= 0
+          ? "linear-gradient(to right, #00b09b, #96c93d)"
+          : "linear-gradient(to right, #ff0000, #c0392b)";
+    }
+  } else {
+    resultText = `Lot ${resultData.lotIndex + 1} ended with no bids.`;
+    backgroundStyle = "linear-gradient(to right, #95a5a6, #7f8c8d)";
+  }
+
+  Toastify({
+    text: resultText,
+    duration: 5000,
+    gravity: "top",
+    position: "center",
+    style: {
+      background: backgroundStyle,
+    },
+  }).showToast();
+}
+
+function displayFinalResults(resultsData) {
+  Toastify({
+    text: `Auction complete! Winner: ${resultsData.winner.nickname} with $${resultsData.winner.finalScore}`,
+    duration: 10000,
+    gravity: "top",
+    position: "center",
+    style: {
+      background: "linear-gradient(to right, #ffd700, #ffed4e)",
+    },
+  }).showToast();
+}
+
+/*
  /$$$$$$$$          /$$               /$$              /$$$           /$$$$$$$                        /$$    
 | $$_____/         | $$              | $$             /$$ $$         | $$__  $$                      | $$    
 | $$     /$$$$$$  /$$$$$$    /$$$$$$$| $$$$$$$       |  $$$          | $$  \ $$  /$$$$$$   /$$$$$$  /$$$$$$  
